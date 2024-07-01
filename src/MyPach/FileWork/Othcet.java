@@ -1,6 +1,4 @@
-package FileWork;
-
-import java.util.PrimitiveIterator;
+package MyPach.FileWork;
 
 public class Othcet {
     private String title;

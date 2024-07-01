@@ -1,4 +1,4 @@
-package FileWork;
+package MyPach.FileWork;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -44,7 +44,6 @@ public class FileFinder {
             message += rdf.getReview() + "\n";
             message += "\n\n------------------------------------------------------------------------------------------------------\n\n\n";
 
-
             //System.out.println(message);
             docxFiles.add(rdf);
 
@@ -61,40 +60,22 @@ public class FileFinder {
             main();
         }
         public void main(){
-            findErroredFilesWhereCantFindEmail();
+            showAllInfo();
         }
-        public void findErroredFilesWhereCantFindFio(){
-            int errorToRead = 0;
+        public void showAllInfo(){
+            int i = 0;
             for (ReadDocxFile rdf : docxFiles){
-                errorToRead++;
-                if (rdf.getVisor().getFio() == null){
-                    System.out.println(rdf.getFileName());
-                }
+                i++;
+                Othcet othcet = rdf.getOthcet();
+                String message = othcet.getTitle();
+                message += " | " + othcet.getFio();
+                message += " | " + othcet.getEmail();
+                message += " | " + othcet.getReview();
+                System.out.println(message);
+                System.out.println("\n\n------------------------------------------------------------------------------------------------------\n\n");
             }
-            System.out.println("errorToRead = " + errorToRead);
+            System.out.println("i = " + i);
         }
-        public void findErroredFilesWhereCantFindEmail(){
-            int errorToRead = 0;
-            for (ReadDocxFile rdf : docxFiles){
-                errorToRead++;
-                if (rdf.getVisor().getEmail() == null){
-                    System.out.println(rdf.getFileName());
-                    //System.out.println(rdf.getVisor().getEmail());
-                }
-                //System.out.println(rdf.getVisor().getEmail() + " | " + rdf.getFileName());
-            }
-            System.out.println("errorToRead = " + errorToRead);
-        }
-    }
-    public boolean checkTypeOfFileForDocx(String fileName){
-        if (fileName.charAt(0) == '~' && fileName.charAt(1) == '$')
-            return false;
-
-        int len = fileName.length();
-        if (fileName.charAt(len - 5) == '.' && fileName.charAt(len - 4) == 'd' && fileName.charAt(len - 3) == 'o'
-                && fileName.charAt(len - 2) == 'c' && fileName.charAt(len - 1) == 'x')
-            return true;
-        return false;
     }
     public static String getCurrentDirrectory(){
         return System.getProperty("user.dir");
@@ -114,5 +95,15 @@ public class FileFinder {
                 }
             }
         return fileNames;
+    }
+    public boolean checkTypeOfFileForDocx(String fileName){
+        if (fileName.charAt(0) == '~' && fileName.charAt(1) == '$')
+            return false;
+
+        int len = fileName.length();
+        if (fileName.charAt(len - 5) == '.' && fileName.charAt(len - 4) == 'd' && fileName.charAt(len - 3) == 'o'
+                && fileName.charAt(len - 2) == 'c' && fileName.charAt(len - 1) == 'x')
+            return true;
+        return false;
     }
 }

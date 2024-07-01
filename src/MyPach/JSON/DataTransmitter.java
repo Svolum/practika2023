@@ -1,4 +1,4 @@
-package FileWork.JSON;
+package MyPach.JSON;
 
 
 
@@ -8,21 +8,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
-import java.util.List;
 
 public class DataTransmitter {
 
     private ObjectMapper objectMapper;
     public DataTransmitter(){
         objectMapper = new ObjectMapper();
-        //jsonCreate();
 
-        ArrayList<OtchetWithReview> otchet = getOthcetsWithReviews();
-        ArrayList<OtchetNeedReview> poem = getOthcetsNeedReviews();
-        for (var lol : poem){
-            System.out.println(lol);
-        }
-        System.out.println(otchet.size());
+        ArrayList<OtchetWithReview> othcetsWithReviews = getOthcetsWithReviews();
+        ArrayList<OtchetNeedReview> othcetsNeedReviews = getOthcetsNeedReviews();
     }
     private ArrayList<OtchetWithReview> jsonReaderWithReview() throws JsonProcessingException {
         ArrayList<OtchetWithReview> otchetWithReviews = new ArrayList<>();

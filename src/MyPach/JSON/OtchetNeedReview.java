@@ -1,4 +1,4 @@
-package FileWork.JSON;
+package MyPach.JSON;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 

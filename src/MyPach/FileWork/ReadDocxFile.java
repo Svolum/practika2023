@@ -1,30 +1,24 @@
-package FileWork;
+package MyPach.FileWork;
 
-import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 import org.apache.poi.xwpf.usermodel.*;
 
-import javax.swing.plaf.ViewportUI;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
-import java.util.Objects;
-import java.util.Scanner;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 
 public class ReadDocxFile {
     private String fileName;
-    private FileInputStream fis;
     private XWPFDocument docs;
-    private Visor visor;
     private Othcet othcet;
     public ReadDocxFile(String fileName, String workDirectory){
         this.fileName = fileName;
         this.othcet = new Othcet();
 
         try{
-            fis = new FileInputStream(workDirectory + fileName);
+            FileInputStream fis = new FileInputStream(workDirectory + fileName);
             docs = new XWPFDocument(fis);
         }
         catch (FileNotFoundException e){
@@ -34,17 +28,26 @@ public class ReadDocxFile {
             System.out.println(fileName);
             System.out.println(e.getMessage());
         }
+        fillOthcet();
     }
     public void fillOthcet(){
         othcet.setTitle(getProjectTitle());
-        othcet.setFio(getSupervisorFIOs().get(0));
-        othcet.setEmail(getEmails().get(0));
+        ArrayList<String> fios = getSupervisorFIOs();
+        if (fios.size() != 0)
+            othcet.setFio(fios.get(0));
+        ArrayList<String> emails = getEmails();
+        if (emails.size() != 0)
+            othcet.setEmail(emails.get(0));
         othcet.setReview(getReview());
+    }
 
 
-
-        // Осталось только найти даты и сделать сопоставление
-        // Надо создать отдельный класс - "отчет", в котором просто буду запонять поля
+    // File data getters
+    public String getProjectTitle(){
+        XWPFTableCell cell = docs.getTableArray(0).getRow(7).getCell(0);
+        if (cell != null)
+            return cell.getText();
+        return null;
     }
     public ArrayList<String> getSupervisorFIOs(){
         ArrayList<String> fios = new ArrayList<>();
@@ -56,12 +59,8 @@ public class ReadDocxFile {
             String text = paragraph.getText();
 
 
-            if (Visor.checkFIO(text) != null)
-                fios.add(Visor.checkFIO(text));
-
-            // чтобы только первого хранить, по которому сравнивать буду
-            if (visor == null || visor.getFio() == null)
-                visor = new Visor(text);
+            if (checkFIO(text) != null)
+                fios.add(checkFIO(text));
         }
 
         // проверка того поля, где фио должно лежать
@@ -69,64 +68,66 @@ public class ReadDocxFile {
         for (XWPFParagraph paragraph : cell.getParagraphs()){
             String text = paragraph.getText();
 
-            //System.out.println(text + " | " + Visor.checkFIO(text));
-            if (Visor.checkFIO(text) != null)
-                fios.add(Visor.checkFIO(text));
-
-            // чтобы только первого хранить, по которому сравнивать буду
-            if (visor == null || visor.getFio() == null)
-                visor = new Visor(text);
+            //System.out.println(text + " | " + checkFIO(text));
+            if (checkFIO(text) != null)
+                fios.add(checkFIO(text));
         }
         return fios;
-    }
-    public String getReview(){
-        XWPFTableCell cell = docs.getTableArray(0).getRow(11).getCell(0);
-        String endResult = cell.getText();
-        return endResult;
     }
     public ArrayList<String> getEmails(){
         ArrayList<String> emails = new ArrayList<>();
         XWPFTableCell titleCell = docs.getTableArray(0).getRow(3).getCell(0);
         for (XWPFParagraph paragraph : titleCell.getParagraphs()){
             String text = paragraph.getText();
-            if (Visor.chechEmail(text) != null){
-                emails.add(Visor.chechEmail(text));
-            }
-            if (visor == null || visor.getEmail() == null){
-                visor = new Visor("");
-                visor.setEmail(Visor.chechEmail(text));
+            if (chechEmail(text) != null){
+                emails.add(chechEmail(text));
             }
         }
 
         XWPFTableCell cell = docs.getTableArray(0).getRow(4).getCell(0);
         for (XWPFParagraph paragraph : cell.getParagraphs()){
             String text = paragraph.getText();
-            if (Visor.chechEmail(text) != null){
-                emails.add(Visor.chechEmail(text));
-            }
-            if (visor == null || visor.getEmail() == null){
-                visor = new Visor("");
-                visor.setEmail(Visor.chechEmail(text));
+            if (chechEmail(text) != null){
+                emails.add(chechEmail(text));
             }
         }
         return emails;
     }
-
-    // is not getter
-    public String getProjectTitle(){
-        XWPFTableCell cell = docs.getTableArray(0).getRow(7).getCell(0);
-        return cell.getText();
+    public String getReview(){
+        XWPFTableCell cell = docs.getTableArray(0).getRow(11).getCell(0);
+        String endResult = cell.getText();
+        return endResult;
     }
 
 
+    // CHECKERS
+    public static String checkFIO(String fio){
+        String fioPattern = "([А-Яа-я]+\\s[А-Яа-я]+\\s[А-Яа-я]+)|([А-Яа-я]+\\s[А-Яа-я]\\.[А-Яа-я]\\.)|([А-Яа-я]+\\s[А-Яа-я]\\.[А-Яа-я]\\.)";
+        Pattern pattern = Pattern.compile(fioPattern);
+        Matcher matcher = pattern.matcher(fio);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
+    }
+    public static String chechEmail(String email){
+        String emailPattern = "^.+@.+\\.\\w+";
+        Pattern pattern = Pattern.compile(emailPattern);
+
+        Matcher matcher = pattern.matcher(email);
+        if (matcher.find()) {
+            return matcher.group();
+        }
+        return null;
+    }
     // GETTERS AND SETTERS
     public String getFileName() {
         return fileName;
     }
-    public Visor getVisor() {
-        return visor;
+    public Othcet getOthcet() {
+        return othcet;
     }
-    public void setVisor(Visor visor) {
-        this.visor = visor;
+    public void setOthcet(Othcet othcet) {
+        this.othcet = othcet;
     }
 }
