@@ -15,6 +15,16 @@ public class Othcet {
         this.email = email;
         this.date_start = date_start;
     }
+
+    @Override
+    public String toString() {
+        return title + "\n" +
+                fio + "\n" +
+                email + "\n" +
+                //date_start + "\n" +
+                review;
+    }
+
     public String getTitle() {
         return title;
     }

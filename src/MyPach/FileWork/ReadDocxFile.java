@@ -1,5 +1,6 @@
 package MyPach.FileWork;
 
+import org.apache.poi.xwpf.model.XWPFHeaderFooterPolicy;
 import org.apache.poi.xwpf.usermodel.*;
 
 import java.io.FileInputStream;
@@ -43,6 +44,15 @@ public class ReadDocxFile {
 
 
     // File data getters
+    public void showAllParagraphs(){
+        for (XWPFParagraph paragraph : docs.getParagraphs()){
+            System.out.println(paragraph.getText());
+        }
+        for (var lol: docs.getHeaderList()){
+            System.out.println(lol.getText());
+        }
+        //XWPFHeaderFooterPolicy
+    }
     public String getProjectTitle(){
         XWPFTableCell cell = docs.getTableArray(0).getRow(7).getCell(0);
         if (cell != null)

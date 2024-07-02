@@ -6,6 +6,9 @@ import java.util.ArrayList;
 public class FileFinder {
     private String workDirectory;
     private ArrayList<ReadDocxFile> docxFiles;
+    public ArrayList<ReadDocxFile> getDocxFiles() {
+        return docxFiles;
+    }
     public FileFinder(){
         docxFiles = new ArrayList<>();
 
@@ -51,7 +54,7 @@ public class FileFinder {
             numberOfFilesFinded++;
         }
         System.out.println("number of files found = " + numberOfFilesFinded);
-        new WorkWithDocxs(docxFiles);
+        //new WorkWithDocxs(docxFiles);
     }
     class WorkWithDocxs {
         private ArrayList<ReadDocxFile> docxFiles;
@@ -66,12 +69,14 @@ public class FileFinder {
             int i = 0;
             for (ReadDocxFile rdf : docxFiles){
                 i++;
+
+                System.out.println(rdf.getFileName());
+
                 Othcet othcet = rdf.getOthcet();
-                String message = othcet.getTitle();
-                message += " | " + othcet.getFio();
-                message += " | " + othcet.getEmail();
-                message += " | " + othcet.getReview();
-                System.out.println(message);
+                System.out.println(othcet.getTitle());
+                System.out.println(othcet.getFio());
+                System.out.println(othcet.getEmail());
+                System.out.println(othcet.getReview());
                 System.out.println("\n\n------------------------------------------------------------------------------------------------------\n\n");
             }
             System.out.println("i = " + i);

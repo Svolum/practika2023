@@ -39,15 +39,15 @@ public class OtchetNeedReview {
     @Override
     public String toString() {
         String message = "";
-        message += "\n project_id: " + project_id + " | ";
-        message += "\n prev_id: " + prev_id + " | ";
-        message += "\n title: " + title + " | ";
-        message += "\n data_start: " + data_start + " | ";
-        message += "\n data_end: " + data_end + " | ";
-        message += "\n project_supervisor_id: " + project_supervisor_id + " | ";
-        message += "\n supervisor_id: " + supervisor_id + " | ";
-        message += "\n project_supervisor_role_id: " + project_supervisor_role_id + " | ";
-        message += "\n fio: " + fio + " | ";
+        message += "\n project_id: " + project_id;
+        message += "\n prev_id: " + prev_id;
+        message += "\n title: " + title;
+        message += "\n data_start: " + data_start;
+        message += "\n data_end: " + data_end;
+        message += "\n project_supervisor_id: " + project_supervisor_id;
+        message += "\n supervisor_id: " + supervisor_id;
+        message += "\n project_supervisor_role_id: " + project_supervisor_role_id;
+        message += "\n fio: " + fio;
         message += "\n email: " + email + "\n";
         return message;
     }

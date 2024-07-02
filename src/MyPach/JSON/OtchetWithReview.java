@@ -2,7 +2,7 @@ package MyPach.JSON;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-public class OtchetWithReview {
+public class OtchetWithReview extends OtchetNeedReview {
 
     @JsonProperty("project.id")
     private int project_id;
