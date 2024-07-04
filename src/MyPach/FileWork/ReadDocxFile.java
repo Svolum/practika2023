@@ -104,15 +104,26 @@ public class ReadDocxFile {
         return emails;
     }
     public String getReview(){
-        XWPFTableCell cell = docs.getTableArray(0).getRow(11).getCell(0);
-        String endResult = cell.getText();
+        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docs.getTableArray(0).getRow(11).getCell(0).getParagraphs();
+        int size = paragraphs.size();
+        String endResult = "";
+        for (XWPFParagraph paragraph : paragraphs){
+            endResult += paragraph.getText().replaceFirst(" ", "");
+            char ch = endResult.charAt(endResult.length()-1);
+            // Если точки(или какого-то спец символа) между абзацами нет, то ставим ее
+            if (Character.isLetter(ch) || ch == ' ')
+                endResult += '.';
+            // просто добавляет перенос строки, ПОХОЖЕ НАДО УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (paragraphs.lastIndexOf(paragraph) != (size - 1))
+                endResult += "\n";
+        }
         return endResult;
     }
 
 
     // CHECKERS
     public static String checkFIO(String fio){
-        String fioPattern = "([А-Яа-я]+\\s[А-Яа-я]+\\s[А-Яа-я]+)|([А-Яа-я]+\\s[А-Яа-я]\\.[А-Яа-я]\\.)|([А-Яа-я]+\\s[А-Яа-я]\\.[А-Яа-я]\\.)";
+        String fioPattern = "([А-Я][а-я]+\\s[А-Я][а-я]+\\s[А-Я][а-я]+)|([А-Я][а-я]+\\s[А-Я]\\.[А-Я]\\.)|([А-Я][а-я]+\\s[А-Я]\\.\\s[А-Я]\\.)";
         Pattern pattern = Pattern.compile(fioPattern);
         Matcher matcher = pattern.matcher(fio);
         if (matcher.find()) {
@@ -136,8 +147,5 @@ public class ReadDocxFile {
     }
     public Othcet getOthcet() {
         return othcet;
-    }
-    public void setOthcet(Othcet othcet) {
-        this.othcet = othcet;
     }
 }

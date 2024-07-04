@@ -52,8 +52,12 @@ public class Sravnitel {
                     //System.out.println("otchet is null");
                     break;
                 }
+                else if (othcet.getEmail() == null){
+                    problemFiles.add(rdf.getFileName());
+                    break;
+                }
                 if ((getOtchetYearStart(jsonOtchet) == date_year) && (getOtchetMonthStart(jsonOtchet) == date_month) &&
-                        jsonOtchet.getFio().contains(othcet.getFio()) && (jsonOtchet.getEmail().equals(othcet.getEmail()))
+                        jsonOtchet.getFio().contains(othcet.getFio())
                         && (jsonOtchet.getProject_supervisor_role_id() == 2)
                         && (othcet.getTitle().contains(jsonOtchet.getTitle()))){
 
@@ -80,8 +84,8 @@ public class Sravnitel {
         System.out.println("sovpadenie = " + sovpadenie);
         System.out.println(problemFiles.size());
 
-        for (var lol : endData){
-
+        for (var lol : problemFiles){
+            System.out.println(lol);
         }
     }
     public void workWithOnlyJsonData(){

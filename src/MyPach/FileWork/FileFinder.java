@@ -15,45 +15,10 @@ public class FileFinder {
         workDirectory = getCurrentDirrectory() + "/отчеты/";
 
 
-        int numberOfFilesFinded = 0;
         for (String fileName : getFileNames()){
-            String message = "";
-
-
-            // File name
-            message += "File name: \n" + fileName + "\n";
-
-
-            // work directly with file
             ReadDocxFile rdf = new ReadDocxFile(fileName, workDirectory);
-
-            // Get all general visors
-            message += "Visors: \n";
-            ArrayList<String> textFIOS = rdf.getSupervisorFIOs();
-            for (String textFIO : textFIOS){
-                message += textFIO + "\n";
-            }
-
-            // GET all emails
-            message += "Email: \n";
-            ArrayList<String> emails = rdf.getEmails();
-            for (String email : emails){
-                message += email + "\n";
-
-            }
-
-            // Get review (or result)
-            message += "End result: \n";
-            message += rdf.getReview() + "\n";
-            message += "\n\n------------------------------------------------------------------------------------------------------\n\n\n";
-
-            //System.out.println(message);
             docxFiles.add(rdf);
-
-
-            numberOfFilesFinded++;
         }
-        System.out.println("number of files found = " + numberOfFilesFinded);
         //new WorkWithDocxs(docxFiles);
     }
     class WorkWithDocxs {
@@ -66,9 +31,7 @@ public class FileFinder {
             showAllInfo();
         }
         public void showAllInfo(){
-            int i = 0;
             for (ReadDocxFile rdf : docxFiles){
-                i++;
 
                 System.out.println(rdf.getFileName());
 
@@ -79,7 +42,6 @@ public class FileFinder {
                 System.out.println(othcet.getReview());
                 System.out.println("\n\n------------------------------------------------------------------------------------------------------\n\n");
             }
-            System.out.println("i = " + i);
         }
     }
     public static String getCurrentDirrectory(){
