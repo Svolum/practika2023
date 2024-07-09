@@ -25,10 +25,9 @@ public class FileTypeScanner {
         fillOtchets();
 
         for (Othcet othcet : othcets){
-            String message = othcet.getFio();
-            System.out.println(message);
-            if (message == null)
-                System.out.println(othcet.getFileName());
+            if (othcet.getFio() == null) {
+                System.out.println("nully fio");
+            }
         }
     }
 

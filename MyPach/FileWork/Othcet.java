@@ -2,6 +2,7 @@ package MyPach.FileWork;
 
 public class Othcet {
     private String fileName;
+    // Теперь отчет часть конечного объекта, поэтому хранить id необязательно
     private int project_id;
     private String title;
     private String fio;
@@ -10,11 +11,12 @@ public class Othcet {
     public Othcet(){
 
     }
-    public Othcet(String fileName, String title, String fio, String email) {
+    public Othcet(String fileName, String title, String fio, String email, String review) {
         this.fileName = fileName;
         this.title = title;
         this.fio = fio;
         this.email = email;
+        this.review = review;
     }
 
     @Override
@@ -25,6 +27,13 @@ public class Othcet {
                 fio + "\n" +
                 email + "\n" +
                 review;
+    }
+    public String toString(int a) {
+        return fileName + "\n" +
+                project_id + "\n" +
+                title + "\n" +
+                fio + "\n" +
+                email;
     }
 
     public String getFileName() {

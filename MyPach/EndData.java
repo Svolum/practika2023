@@ -1,27 +1,36 @@
 package MyPach;
 
+import MyPach.FileWork.Othcet;
+
 public class EndData {
-    private int[] ids;
+    private int projectId;
+    private int prevProjectId;
     private String review;
-    public EndData(int[] ids, String review){
-        this.ids = ids;
+
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    private Othcet othcet;
+    public EndData(Othcet othcet, int projectId, int prevProjectId, String review) {
+        this.othcet = othcet;
+        this.projectId = projectId;
+        this.prevProjectId = prevProjectId;
         this.review = review;
     }
-    public EndData(String review) {
-        this.ids = new int[]{-1, -1};
+    public Othcet getFileName(){
+        return othcet;
+    }
+    //////////////////////////////////////////////////////////////////////////////////////////////////////
+    public EndData(int projectId, int prevProjectId, String review) {
+        this.projectId = projectId;
+        this.prevProjectId = prevProjectId;
         this.review = review;
     }
-    public boolean addId(int id){
-        if (ids[0] == -1)
-        {
-            ids[0] = id;
-            return true;
-        }
-        else if (ids[1] == -1)
-        {
-            ids[1] = id;
-            return true;
-        }
-        return false;
+    public int getProjectId() {
+        return projectId;
+    }
+    public int getPrevProjectId() {
+        return prevProjectId;
+    }
+    public String getReview() {
+        return review;
     }
 }

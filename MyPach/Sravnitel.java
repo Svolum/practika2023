@@ -1,138 +1,177 @@
 package MyPach;
 
-import MyPach.FileWork.FileFinder;
 import MyPach.FileWork.FileTypeScanner;
 import MyPach.FileWork.Othcet;
-import MyPach.FileWork.ReadDocxFile;
 import MyPach.JSON.JSONDataExtractor;
 import MyPach.JSON.OtchetNeedReview;
-import org.apache.commons.compress.archivers.ar.ArArchiveEntry;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.Scanner;
 
 public class Sravnitel {
-    private int date_year;
-    private int date_month;
+    ArrayList<Othcet> otchets;
+    ArrayList<OtchetNeedReview> jsonOtchets;
+    // Обработанные данные
+    HashSet<Integer> alredyExistingId;
+    ArrayList<EndData> endDataFall;
+    ArrayList<EndData> endDataSpring;
     public Sravnitel(){
         Scanner in = new Scanner(System.in);
-        System.out.println("Enter start date of project");
-        System.out.println("Enter year");
-        date_year = in.nextInt();
 
-        System.out.println("Enter month");
-        date_month = in.nextInt();
-
-
-        //main();
         generalLogic();
     }
     private void generalLogic(){
-        
-        ArrayList<Othcet> otchets = new FileTypeScanner().getOthcets();
-        ArrayList<OtchetNeedReview> jsonOtchets = new JSONDataExtractor().getOthcetsNeedReviews();
+        otchets = new FileTypeScanner().getOthcets();
+        jsonOtchets = new JSONDataExtractor().getOthcetsNeedReviews();
+
+
+        alredyExistingId = new HashSet<>();
+        endDataFall = new ArrayList<>();
+        endDataSpring = new ArrayList<>();
+
+
+        int countOfYearReports = 0;
 
         for (Othcet othcet : otchets){
             // Если есть такие отчеты, которые не читаются, имена их фалов надо закинуть в спец массив
             // Надо написать чеккер на не null важных полей и вызывать его, а не делать эти ифы
             if (othcet.getFio() == null)
                 continue;
+
+
+            boolean isFall = false;
+            boolean isSpring = false;
+
             for (OtchetNeedReview jsonOtchet : jsonOtchets){
-                if (    ((getOtchetYearStart(jsonOtchet) == date_year) && (getOtchetMonthStart(jsonOtchet) == date_month)) && // compare date monto and yeat
-                        othcet.getFio().equals(jsonOtchet.getFio()) &&
-                        ((othcet.getTitle().contains(jsonOtchet.getTitle())) || (jsonOtchet.getTitle().contains(othcet.getTitle())))){
-                    //System.out.println(othcet);
-                    System.out.println(jsonOtchet);
-                    System.out.println("------------------------------------------------------------------------------------------\n\n");
+                if ( compareJsonAndFile(jsonOtchet, othcet)){
+
+                    int projectId = jsonOtchet.getProject_id();
+                    // Исключает дубли, есть 2 версии 1 файла, АКТУАЛЬНОСТЬ оставшегося файла проверить, пока что, НЕВОЗМОЖНО
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // Возможно исключает те отчеты, которые длятся только осенью
+                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
+                    // т.е. еще надо проверить как это работает
+                    if (alredyExistingId.contains(projectId)) // итак вопрос, почему 1 проект, может откликаться больше чем на 1 отчет
+                        continue; // Если убрать то countOfYearEndData, возможно будет больше количества весенних EndData
+
+                    othcet.setProject_id(projectId);
+                    alredyExistingId.add(projectId);
+
+
+                    if (jsonOtchet.getPrev_id() != 0) {
+                        alredyExistingId.add(jsonOtchet.getPrev_id());
+                    }
+
+                    // END DATA
+                    if (jsonOtchet.getData_start().contains("2022-09")) {
+                        // ОСЕНЬ
+                        EndData ed = new EndData(othcet, projectId, jsonOtchet.getPrev_id(), othcet.getReview());
+                        endDataFall.add(ed);
+
+                        isFall = true;
+                    }
+                    else if (jsonOtchet.getData_start().contains("2023-02")){
+                        // ВЕСНА
+                        EndData ed = new EndData(othcet, projectId, jsonOtchet.getPrev_id(), othcet.getReview());
+                        endDataSpring.add(ed);
+
+                        isSpring = true;
+                    }
                 }
+            }
+            if (isFall && isSpring){
+                countOfYearReports++;
+            }
+        }
+
+        int countOfLonlyFiles = 0;
+        for (Othcet othcet : otchets){
+            if (othcet.getProject_id() == 0)
+                countOfLonlyFiles++;
+
+        }
+        System.out.println("Count of lonly files = " + countOfLonlyFiles);
+
+        // Почему-то не сходится, поэтому положусь на данные из БД т.е. на EndData
+        System.out.println("Count of year reports = " + countOfYearReports + " // not exactly");
+        int countOfYearEndData = 0;
+        for (var fall: endDataFall){
+            boolean notIsYearProject = true;
+            for (var spring: endDataSpring){
+                if (fall.getProjectId() == spring.getPrevProjectId()){
+                    notIsYearProject = false;
+                    countOfYearEndData++;
+                }
+            }
+            if (notIsYearProject) {
+                // count of semestr reports
+            }
+        }
+        System.out.println("count of year EndData = " + countOfYearEndData + " // can respond for more then 1 fall EndData");
+
+        System.out.println("ids = " + alredyExistingId.size());
+        System.out.println("FALL    = " + endDataFall.size());
+        System.out.println("SPRING  = " + endDataSpring.size());
+
+
+        for (Othcet othcet : otchets){
+            if (othcet.getProject_id() == 0){
+                System.out.println(othcet.toString(0));
+                System.out.println("-------------------------------------------------------------------------------------------------");
             }
         }
     }
-    private void main(){
-        ArrayList<EndData> endData = new ArrayList<>();
-        ArrayList<String> problemFiles = new ArrayList<>();
-        JSONDataExtractor dt = new JSONDataExtractor();
+    public static boolean compareJsonAndFile(OtchetNeedReview json, Othcet othcet){
+        return
+                (json.getData_start().contains("2022-09") || (json.getData_start().contains("2023-02"))) &&
+                (json.getProject_supervisor_role_id() == 2) && // i have to check role id
+                othcet.getFio().equals(json.getFio()) &&
+                //((othcet.getTitle().contains(jsonOtchet.getTitle())) || (jsonOtchet.getTitle().contains(othcet.getTitle()))) // проерка на название
+                (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(json.getTitle(), othcet.getTitle()))
+        ;
+    }
+    public static boolean compareTwoTitles(String json, String otchet){
+        json = json.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
+        otchet = otchet.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
+        return json.contains(otchet) || otchet.contains(json);
+    }
+    public static boolean anotherCompareOfTitles(String json, String otchet){
+        // здесь превращение одних символов в другие и т.д.
+        // или переписать contains
 
-        // count of matches
-        int sovpadenie = 0;
+        return false;
+    }
+    public static boolean myContains(String s, String q){
+        if (s.length() < q.length())
+            return false;
+        // max 6
+        // Так же, когда катушка будет встречать несовпадение, она должна попробовать следующий символ из s, и из q //типо подстановка, хотя если писать MyContains под каждую строку, то подстановку, наверное моэно запилить только из одного массива символов
+        // как получиться, короче
+        int countOfUnMatches = 0;
+        // Для начала, надо написать простой contains, а потом уже с возможностью допустить ошибку
 
-        FileFinder ff = new FileFinder();
-        ArrayList<ReadDocxFile> docxFiles = ff.getDocxFiles();
-        for (ReadDocxFile rdf : docxFiles){
-            Othcet othcet = rdf.getOthcet();
-            //System.out.println(rdf.getFileName());
-            //System.out.println(othcet);
-            //System.out.println("\n\n------------------------------------------------------------------------------------------------------\n\n");
 
-            ArrayList<OtchetNeedReview> othcetsNeedReviews = dt.getOthcetsNeedReviews();
-            int a = 0;
-            for (OtchetNeedReview jsonOtchet : othcetsNeedReviews){
-                if (jsonOtchet.getFio() == null){
-                    System.out.println("json is null");
+        char[] smas = s.toCharArray();
+        char[] qmas = q.toCharArray();
+        for (int si = 0; si < smas.length; si++){
+
+            for (int qi = 0; qi < qmas.length; qi++){
+                if (smas[si] == qmas[qi]) {
+                    if (qi == qmas.length - 1) // если смог дойти до конца
+                        return true;
+                    System.out.println(si);
+                    si++;
+                    //return true;
+                    continue;
                 }
-                else if (othcet.getFio() == null){
-                    problemFiles.add(rdf.getFileName());
-                    //System.out.println("otchet is null");
+                else {
+                    si -= qi;
                     break;
                 }
-                else if (othcet.getEmail() == null){
-                    problemFiles.add(rdf.getFileName());
-                    break;
-                }
-                if ((getOtchetYearStart(jsonOtchet) == date_year) && (getOtchetMonthStart(jsonOtchet) == date_month) &&
-                        jsonOtchet.getFio().contains(othcet.getFio())
-                        && (jsonOtchet.getProject_supervisor_role_id() == 2)
-                        && (othcet.getTitle().contains(jsonOtchet.getTitle()))){
-
-                    System.out.println(othcet);
-                    System.out.println(jsonOtchet);
-                    System.out.println("\n\n------------------------------------------------------------------------------------------------------\n\n");
-                    EndData current = new EndData(othcet.getReview());
-                    current.addId(jsonOtchet.getProject_id());
-                    if (jsonOtchet.getPrev_id() != 0)
-                        current.addId(jsonOtchet.getPrev_id());
-                    endData.add(current);
-
-
-                    a++;
-                    sovpadenie++;
-                }
             }
-            if (a > 1){
-                System.out.println("DUBLESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
-            }
-            else
-                System.out.println("NOT DUBLESSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSSS");
+            System.out.println("here" + smas.length + si);
         }
-        System.out.println("sovpadenie = " + sovpadenie);
-        System.out.println(problemFiles.size());
-
-        for (var lol : problemFiles){
-            System.out.println(lol);
-        }
-    }
-    public void workWithOnlyJsonData(){
-        JSONDataExtractor dt = new JSONDataExtractor();
-        ArrayList<OtchetNeedReview> othcetsNeedReviews = dt.getOthcetsNeedReviews();
-        for (OtchetNeedReview otchet : othcetsNeedReviews){
-            String fio = otchet.getFio();
-            if (fio.contains("Шакирова Эльвира Венеровна")) {
-                System.out.println(otchet);
-                if ((getOtchetYearStart(otchet) == date_year) && (getOtchetMonthStart(otchet) == date_month))
-                {
-                    System.out.println("Yes");
-                }
-            }
-        }
-    }
-    private int getOtchetYearStart(OtchetNeedReview othcet){
-        String date = othcet.getData_start();
-        String year = date.split("-")[0];
-        return Integer.parseInt(year);
-    }
-    private int getOtchetMonthStart(OtchetNeedReview othcet){
-        String date = othcet.getData_start();
-        String month = date.split("-")[1];
-        return Integer.parseInt(month);
+        return false;
     }
 }

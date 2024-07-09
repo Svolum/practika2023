@@ -33,7 +33,7 @@ public class DocxDataExtractor {
     }
     // some getters
     public Othcet getOtchet(){
-        return new Othcet(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail());
+        return new Othcet(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
     }
     public String getProjectTitle(){
         String projectTitle = "";
@@ -86,6 +86,21 @@ public class DocxDataExtractor {
         while (!isFIOFinded) {
             XWPFTableCell cell = docs.getTableArray(0).getRow(row).getCell(0);
 
+            // Если ячейка почемуто пустая, может быть там форма
+            if (cell.getText().isEmpty()) {
+                try {
+                    //XWPFTableCell lol = (XWPFTableCell)docs.getTableArray(0).getRow(row).getTableICells().get(0);
+                    // стоит заметить что это просто cell, не SDTCell,  возможно возникнут проблемы, а они возникнут, поэтому надо обработать оба варианта или привести к одному
+                    // Первый здесь не сработал, поэтому склоняюсь к этому
+
+                    // Здесь другой способ достать данные из формы
+                    supervisorFIO = ((XWPFTableCell) docs.getTableArray(0).getRow(row).getTableICells().get(0)).getTextRecursively().trim();
+                    isFIOFinded = true;
+                } catch (Exception e){
+                    // а здесь ничего, потому что ячейка может быть просто пустой
+                }
+                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            }
             for (XWPFParagraph paragraph : cell.getParagraphs()) {
                 String paragraphText = paragraph.getText();
 
@@ -130,6 +145,51 @@ public class DocxDataExtractor {
             }
         }
         return supervisorEmail;
+    }
+    public String getReview(){
+        List<XWPFTableRow> tableRows = docs.getTableArray(0).getRows();
+        // The row where program starts to searching the header of title
+        int row = 7;
+        boolean isTitleReviewFinded = false;
+        while (!isTitleReviewFinded) {
+            String text = "";
+            try{
+                text = tableRows.get(row).getCell(0).getParagraphArray(0).getText();
+            }catch (Exception e){
+                text = ((XWPFSDTCell)tableRows.get(row).getTableICells().get(0)).getContent().getText();
+            }
+
+            // if Find desired "Название проекта"
+            if (text.contains("Фактически полученный продуктовый результат")) {
+                isTitleReviewFinded = true;
+                break;
+            }
+            row++;
+            // 4 is random number i pucked up
+            if (row > tableRows.size() - 4) { // this 4
+                System.out.println("------------------------------------------------------------");
+                System.out.println("getReview - че-то не может найти название фактического результата\n" + fileName);
+                System.out.println("------------------------------------------------------------");
+                break;
+            }
+        }
+
+
+        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docs.getTableArray(0).getRow(row + 1).getCell(0).getParagraphs();
+        String endResult = "";
+        for (XWPFParagraph paragraph : paragraphs){
+            endResult += paragraph.getText().trim();
+
+            // Если точки(или какого-то спец символа) между абзацами нет, то ставим ее
+            if (Character.isLetter(endResult.charAt(endResult.length()-1)))
+                endResult += '.';
+
+
+            // просто добавляет перенос строки, ПОХОЖЕ НАДО УДАЛИТЬ!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+            if (paragraphs.lastIndexOf(paragraph) != (paragraphs.size() - 1))
+                endResult += "\n";
+        }
+        return endResult;
     }
 
 
