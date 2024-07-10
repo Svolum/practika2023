@@ -16,11 +16,11 @@ public class Main {
 
         //new FileTypeScanner().showOthcetsInfo();
         //workWithCertainFile();
-        //new Sravnitel();
+        new Sravnitel();
         // разобрать json данные
         //checkJSON();
 
-        System.out.println(Sravnitel.myContains("hello world", "he"));
+        //System.out.println(Sravnitel.myContains("hello world", "1here"));
     }
     public static void workWithCertainFile(){
         DocxDataExtractor rdf = new DocxDataExtractor("Конструкция и система управления навесными модулями настольного станка с ЧПУ.docx", System.getProperty("user.dir") + "/отчеты/");

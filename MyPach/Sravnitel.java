@@ -128,13 +128,19 @@ public class Sravnitel {
                 (json.getProject_supervisor_role_id() == 2) && // i have to check role id
                 othcet.getFio().equals(json.getFio()) &&
                 //((othcet.getTitle().contains(jsonOtchet.getTitle())) || (jsonOtchet.getTitle().contains(othcet.getTitle()))) // проерка на название
-                (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(json.getTitle(), othcet.getTitle()))
+                (
+                        (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(othcet.getTitle(), json.getTitle())) &&
+                        (myContains(json.getTitle(), othcet.getTitle()) || myContains(othcet.getTitle(), json.getTitle()))
+                )
         ;
     }
     public static boolean compareTwoTitles(String json, String otchet){
-        json = json.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
-        otchet = otchet.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
+        json = remainOnlyWords(json);
+        otchet = remainOnlyWords(otchet);
         return json.contains(otchet) || otchet.contains(json);
+    }
+    public static String remainOnlyWords(String s){
+        return s.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
     }
     public static boolean anotherCompareOfTitles(String json, String otchet){
         // здесь превращение одних символов в другие и т.д.
@@ -143,6 +149,10 @@ public class Sravnitel {
         return false;
     }
     public static boolean myContains(String s, String q){
+        /////////////////////////////////////////////////////
+        s = remainOnlyWords(s);
+        q = remainOnlyWords(q);
+        /////////////////////////////////////////////////////
         if (s.length() < q.length())
             return false;
         // max 6
@@ -150,7 +160,7 @@ public class Sravnitel {
         // как получиться, короче
         int countOfUnMatches = 0;
         // Для начала, надо написать простой contains, а потом уже с возможностью допустить ошибку
-
+        //System.out.println(s + " | " + q);
 
         char[] smas = s.toCharArray();
         char[] qmas = q.toCharArray();
@@ -160,17 +170,29 @@ public class Sravnitel {
                 if (smas[si] == qmas[qi]) {
                     if (qi == qmas.length - 1) // если смог дойти до конца
                         return true;
-                    System.out.println(si);
+                    //System.out.println(si);
                     si++;
                     //return true;
                     continue;
                 }
                 else {
-                    si -= qi;
+                    countOfUnMatches++;
+                    //System.out.println("count = " + countOfUnMatches + " | si=" + si + " | qi=" + qi);
+                    if (countOfUnMatches <= 6) {
+                        if (qi == qmas.length - 1) // если смог дойти до конца
+                            return true;            // просто может оказаться так, что неподходящий элемент является послденим
+
+                        continue;
+                    }
+
+
+                    //System.out.println(si + " | " + qi);
+                    si -= qi - countOfUnMatches;
+                    countOfUnMatches = 0;
                     break;
                 }
             }
-            System.out.println("here" + smas.length + si);
+            //System.out.println("here" + smas.length + si);
         }
         return false;
     }
