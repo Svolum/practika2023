@@ -8,6 +8,7 @@ import MyPach.JSON.OtchetNeedReview;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Scanner;
+import java.util.concurrent.CyclicBarrier;
 
 public class Sravnitel {
     ArrayList<Othcet> otchets;
@@ -129,8 +130,8 @@ public class Sravnitel {
                 othcet.getFio().equals(json.getFio()) &&
                 //((othcet.getTitle().contains(jsonOtchet.getTitle())) || (jsonOtchet.getTitle().contains(othcet.getTitle()))) // проерка на название
                 (
-                        (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(othcet.getTitle(), json.getTitle())) &&
-                        (myContains(json.getTitle(), othcet.getTitle()) || myContains(othcet.getTitle(), json.getTitle()))
+                        (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(othcet.getTitle(), json.getTitle())) ||
+                        ((lewenstain(json.getTitle(), othcet.getTitle()) < 12) || (lewenstain(othcet.getTitle(), json.getTitle()) < 12)) // помоему достаточно одного
                 )
         ;
     }
@@ -150,50 +151,88 @@ public class Sravnitel {
     }
     public static boolean myContains(String s, String q){
         /////////////////////////////////////////////////////
-        s = remainOnlyWords(s);
-        q = remainOnlyWords(q);
+        //s = remainOnlyWords(s);
+        //q = remainOnlyWords(q);
+        //System.out.println(s);
+        //System.out.println(q);
         /////////////////////////////////////////////////////
         if (s.length() < q.length())
             return false;
         // max 6
         // Так же, когда катушка будет встречать несовпадение, она должна попробовать следующий символ из s, и из q //типо подстановка, хотя если писать MyContains под каждую строку, то подстановку, наверное моэно запилить только из одного массива символов
         // как получиться, короче
-        int countOfUnMatches = 0;
+        int step = 0;
         // Для начала, надо написать простой contains, а потом уже с возможностью допустить ошибку
         //System.out.println(s + " | " + q);
 
         char[] smas = s.toCharArray();
         char[] qmas = q.toCharArray();
-        for (int si = 0; si < smas.length; si++){
-
+        for (int si = 0; si < smas.length - qmas.length + 1; si++){ // если s становится короче чем q, то продолжать нет смысла
+            int ind = si;
+            int qe = 0;
+            int se = 0;
+            step = 0;
             for (int qi = 0; qi < qmas.length; qi++){
-                if (smas[si] == qmas[qi]) {
-                    if (qi == qmas.length - 1) // если смог дойти до конца
+                ind = si + qi - qe + se;  // сюда та самая формула, до этого я менял si, но потом возникали заморочки с установкой того значения, которое должно быть по факту(циклу фору --for)
+                if (smas[ind] == qmas[qi]){
+                    if (qi == qmas.length - 1) // если добрался до конца, значит q является подстрокой s
                         return true;
-                    //System.out.println(si);
-                    si++;
-                    //return true;
                     continue;
                 }
                 else {
-                    countOfUnMatches++;
-                    //System.out.println("count = " + countOfUnMatches + " | si=" + si + " | qi=" + qi);
-                    if (countOfUnMatches <= 6) {
-                        if (qi == qmas.length - 1) // если смог дойти до конца
-                            return true;            // просто может оказаться так, что неподходящий элемент является послденим
-
+                    if ((se != 2) && (step == 0)){ // т.е допускаемое кол-во ошибок = 2
+                        se++;
+                        continue;
+                    }else {
+                        step = 1;
+                        se = 0;
+                    }
+                    qe++; // подготовка qe к следующему шагу в q
+                    //System.out.println("qe = " + qe);
+                    // код ниже - ликвидный код
+                    if (qe != 3) // максимальное допустимое количество ошибок == 2
+                    {
+                        if (qi == qmas.length - 1) // пусть и с ошибками, но q является подстрокой s
+                            return true;
                         continue;
                     }
-
-
-                    //System.out.println(si + " | " + qi);
-                    si -= qi - countOfUnMatches;
-                    countOfUnMatches = 0;
+                    qe--; // так как следующий шаг, будет уже в s, а не в q. И мне надо чтобы прога норм возвращала si в свое нормальное значение
+                    //System.out.println(si + " | " + (ind - qi + qe - se)); // это так, если в самом конце они будут сходится, то удалю ind
                     break;
                 }
             }
-            //System.out.println("here" + smas.length + si);
         }
+        //System.out.println("end false");
         return false;
+    }
+    public static int lewenstain(String s, String q){
+        /*int up = 1; // prev j in column (i, j-1)
+        int left = 1; // prev i in row (i - 1, j)
+        int prev = 0; // just prev (i - 1, j - 1)
+        //int cur; // (i, j)*/
+
+        int prev = 0;
+        int[] up = new int[q.length()];
+        int[] left = new int[s.length()];
+        int cur = 0;
+        for (int i = 0; i < s.length(); i++){
+            left[i] = i + 1;
+            for (int j = 0; j < q.length(); j++){
+                if (i == 0)
+                    up[j] = j + 1;
+
+                int a = up[j] + 1;
+                int b = left[i] + 1;
+                int c = prev;
+                if (s.charAt(i) != q.charAt(j))
+                    c++;
+                cur = Math.min(Math.min(a, b), c);
+
+                prev = up[j];
+                left[i] = cur;
+                up[j] = cur;
+            }
+        }
+        return cur;
     }
 }

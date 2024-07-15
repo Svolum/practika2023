@@ -20,7 +20,17 @@ public class Main {
         // разобрать json данные
         //checkJSON();
 
-        //System.out.println(Sravnitel.myContains("hello world", "1here"));
+        //myContainsChecker();
+        myLewenstain();
+    }
+    public static void myContainsChecker(){
+        //System.out.println(Sravnitel.myContains("hello world", "hell"));
+        System.out.println(Sravnitel.myContains("Создание веб-форм для Центра Карьеры", "Разработка веб форм для Центра Карьеры "));
+    }
+    public static void myLewenstain(){
+        String s = "Разработка веб форм для Центра Карьеры ";
+        String q = "Создание веб-форм для Центра Карьеры";
+        System.out.println(Sravnitel.lewenstain(s, q));
     }
     public static void workWithCertainFile(){
         DocxDataExtractor rdf = new DocxDataExtractor("Конструкция и система управления навесными модулями настольного станка с ЧПУ.docx", System.getProperty("user.dir") + "/отчеты/");
