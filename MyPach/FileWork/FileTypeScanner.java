@@ -21,6 +21,15 @@ public class FileTypeScanner {
             othcets.add(dde.getOtchet());
         }
     }
+    public Othcet getOtchet(String otchetName){
+        for (String fileName : getDocxFileNames()){
+            if (fileName.equals(otchetName)) {
+                DocxDataExtractor dde = new DocxDataExtractor(fileName, workDirectory);
+                return dde.getOtchet();
+            }
+        }
+        return null;
+    }
     public void showOthcetsInfo(){
         fillOtchets();
 
@@ -51,6 +60,20 @@ public class FileTypeScanner {
             }
         return fileNames;
     }
+    public ArrayList<String> getPDFileNames(){
+        ArrayList<String> fileNames = new ArrayList<>();
+
+        File[] masOfFiles = new File(workDirectory).listFiles();
+        if (masOfFiles != null)
+            for (File file : masOfFiles){
+                if (file.isFile()) {
+                    String fileName = file.getName();
+                    if (getFileExtension(fileName).equals(".pdf"))
+                        fileNames.add(fileName);
+                }
+            }
+        return fileNames;
+    }
     public HashSet<String> getAllFileTypes(){
         HashSet<String> fileTypes = new HashSet<>();
 
@@ -71,5 +94,8 @@ public class FileTypeScanner {
     }
     public static String getCurrentDirrectory(){
         return System.getProperty("user.dir");
+    }
+    public String getWorkDirectory() {
+        return workDirectory;
     }
 }

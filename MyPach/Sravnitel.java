@@ -22,6 +22,63 @@ public class Sravnitel {
 
         generalLogic();
     }
+    public static int getNumberOfUniqueOtchets(){
+        System.out.println("_________________________________________________________________________________________________");
+        System.out.println("-------------------------------------------------------------------------------------------------");
+        System.out.println("Дубли:\n");
+        ArrayList<Othcet> array = new FileTypeScanner().getOthcets();
+        int numberOfUniqueOtchets = 0;
+
+        ArrayList<Othcet> checkedOtchets = new ArrayList<>();
+
+        for (Othcet i : array){
+            for (Othcet j : array){
+                /*if (array.indexOf(i) > array.indexOf(j))
+                    continue;*/
+                if (checkedOtchets.contains(j))
+                    continue;
+                if (i == j)
+                    continue;
+
+                if (i.getTitle().equals(j.getTitle())){
+                    System.out.println(i.getTitle());
+                    System.out.println(i.getFileName());
+                    System.out.println(j.getFileName());
+                    System.out.println("---|---\n\n");
+                    /*numberOfUniqueOtchets--;*/
+                }
+            }
+            checkedOtchets.add(i);
+            numberOfUniqueOtchets++;
+        }
+//        return numberOfUniqueOtchets;
+        return -1;
+    }
+    public ArrayList<String> getDublesOtchetFileNames(){
+        ArrayList<Othcet> array = new FileTypeScanner().getOthcets();
+
+        ArrayList<Othcet> checkedOtchets = new ArrayList<>();
+        ArrayList<String> dublesOtchetFileNames = new ArrayList<>();
+
+        for (Othcet i : array){
+            for (Othcet j : array){
+                /*if (array.indexOf(i) > array.indexOf(j))
+                    continue;*/
+                if (checkedOtchets.contains(j))
+                    continue;
+                if (i == j)
+                    continue;
+
+                if (i.getTitle().equals(j.getTitle())){
+                    // Это значит, что те файлы, что стоят выше будут считаться истинными
+                    dublesOtchetFileNames.add(i.getFileName());
+                    dublesOtchetFileNames.add(j.getFileName());
+                }
+            }
+            checkedOtchets.add(i);
+        }
+        return dublesOtchetFileNames;
+    }
     private void generalLogic(){
         otchets = new FileTypeScanner().getOthcets();
         jsonOtchets = new JSONDataExtractor().getOthcetsNeedReviews();
@@ -34,18 +91,31 @@ public class Sravnitel {
 
         int countOfYearReports = 0;
 
+        ArrayList<String> dublesOtchetFileNames = getDublesOtchetFileNames();
+
         for (Othcet othcet : otchets){
             // Если есть такие отчеты, которые не читаются, имена их фалов надо закинуть в спец массив
             // Надо написать чеккер на не null важных полей и вызывать его, а не делать эти ифы
             if (othcet.getFio() == null)
                 continue;
+            /*if (dublesOtchetFileNames.contains(othcet.getFileName()))
+                // я даже не знаю, кажется это должно добавлять количество файлов в отстойнике
+                continue;*/
+
 
 
             boolean isFall = false;
             boolean isSpring = false;
 
             for (OtchetNeedReview jsonOtchet : jsonOtchets){
-                if ( compareJsonAndFile(jsonOtchet, othcet)){
+                if (compareJsonAndFile(jsonOtchet, othcet)){
+                    String searchingTitle = "Культура безопасности как элемент снижения уровня профессиональных рисков";
+                    if (jsonOtchet.getTitle().equals(searchingTitle)) {
+                        System.out.println("X#");
+                        System.out.println(othcet.getTitle());
+                        System.out.println(othcet.getFileName());
+                        System.out.println("X-->");
+                    }
 
                     int projectId = jsonOtchet.getProject_id();
                     // Исключает дубли, есть 2 версии 1 файла, АКТУАЛЬНОСТЬ оставшегося файла проверить, пока что, НЕВОЗМОЖНО
@@ -55,6 +125,9 @@ public class Sravnitel {
                     // т.е. еще надо проверить как это работает
                     if (alredyExistingId.contains(projectId)) // итак вопрос, почему 1 проект, может откликаться больше чем на 1 отчет
                         continue; // Если убрать то countOfYearEndData, возможно будет больше количества весенних EndData
+                    if (jsonOtchet.getTitle().equals(searchingTitle)){
+                        System.out.println("Here");
+                    }
 
                     othcet.setProject_id(projectId);
                     alredyExistingId.add(projectId);
@@ -116,21 +189,65 @@ public class Sravnitel {
         System.out.println("SPRING  = " + endDataSpring.size());
 
 
+        int a = 0;
+        ArrayList<String> fileNamesWitoutPair = getFileNamesWithoutPair();
         for (Othcet othcet : otchets){
             if (othcet.getProject_id() == 0){
+                if (dublesOtchetFileNames.contains(othcet.getFileName()))
+                    continue;
+                if (fileNamesWitoutPair.contains(othcet.getFileName()))
+                    continue;
+
                 System.out.println(othcet.toString(0));
                 System.out.println("-------------------------------------------------------------------------------------------------");
+                a++;
             }
         }
+        System.out.println("\n\n\n");
+        System.out.println("a = " + a + " | кол-во файлов, которым прога не нашла пары, и которые я пока считаю не дефектными");
+        System.out.println("\n\n\n");
+    }
+    public ArrayList<String> getFileNamesWithoutPair(){
+        ArrayList<String > fileNamesWitoutPair = new ArrayList<>();
+        fileNamesWitoutPair.add("Архитектурно-планировочная концепция развития территории «ЭКОПАРК ТАНХОЙ».docx");
+        fileNamesWitoutPair.add("Отчет наставника (v2023) Арсентьев ОВ.docx");
+        fileNamesWitoutPair.add("Причины отрицательной миграции населения в Иркутской области и меры по ее преодолению..docx");
+        fileNamesWitoutPair.add("Проведение оценки профессиональных рисков в структурных подразделениях ИРНИТУ Издательство «УЛиУМП».docx");
+        fileNamesWitoutPair.add("Проектные работы на строительство группы жилых домов в г. Тайшете.docx");
+        fileNamesWitoutPair.add("Работы по сохранению объекта культурного наследия «Особняка Бутиных», 1886г., г. Иркутск, Хасановский пер.,1 лит. А.docx");
+        fileNamesWitoutPair.add("Ярмарка выходного дня «Клубничная феерия».docx");
+        fileNamesWitoutPair.add("Отчет наставника каф.РМПИ Иванов.docx");
+//        fileNamesWitoutPair.add("");
+        return fileNamesWitoutPair;
+    }
+    public static boolean compareFIO(String json, String otchet){
+        if (json.equals(otchet))
+            return true;
+        String[] arr = json.split("( )|(\\.)");
+        String[] mas = otchet.split("( )|(\\.)");
+        if (arr.length == mas.length){
+            if (    (arr[0].equals(mas[0])) &&
+                    (arr[0].charAt(0) == mas[0].charAt(0)) &&
+                    (arr[1].charAt(0) == mas[1].charAt(0)))
+                return true;
+        }
+
+        /*for (var lol : arr){
+            System.out.println(lol);
+        }
+        for (var lol : mas){
+            System.out.println(lol);
+        }*/
+        return false;
     }
     public static boolean compareJsonAndFile(OtchetNeedReview json, Othcet othcet){
         return
                 (json.getData_start().contains("2022-09") || (json.getData_start().contains("2023-02"))) &&
                 (json.getProject_supervisor_role_id() == 2) && // i have to check role id
-                othcet.getFio().equals(json.getFio()) &&
+                compareFIO(json.getFio(), othcet.getFio()) &&
                 //((othcet.getTitle().contains(jsonOtchet.getTitle())) || (jsonOtchet.getTitle().contains(othcet.getTitle()))) // проерка на название
                 (
-                        (compareTwoTitles(json.getTitle(), othcet.getTitle()) || anotherCompareOfTitles(othcet.getTitle(), json.getTitle())) ||
+                        compareTwoTitles(json.getTitle(), othcet.getTitle()) ||
                         ((lewenstain(json.getTitle(), othcet.getTitle()) < 12) || (lewenstain(othcet.getTitle(), json.getTitle()) < 12)) // помоему достаточно одного
                 )
         ;

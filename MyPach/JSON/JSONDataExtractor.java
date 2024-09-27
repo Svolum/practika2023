@@ -8,11 +8,21 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class JSONDataExtractor {
     private ObjectMapper objectMapper;
+    private ArrayList<String> supervisorsFIO;
     public JSONDataExtractor(){
         objectMapper = new ObjectMapper();
+        supervisorsFIO = new ArrayList<>();
+    }
+    public ArrayList<String> getSupervisorsFIO(){
+        ArrayList<OtchetNeedReview> otchetNeedReviews = getOthcetsNeedReviews();
+        for (OtchetNeedReview otchet : otchetNeedReviews){
+
+        }
+        return null;
     }
     public ArrayList<OtchetWithReview> getOthcetsWithReviews(){
         ArrayList<OtchetWithReview> otchetWithReviews = new ArrayList<>();
@@ -34,8 +44,13 @@ public class JSONDataExtractor {
         }
         return otchetNeedReviews;
     }
-
-
+    public OtchetNeedReview getOtchetNeedReview(String jsonName){
+        for (OtchetNeedReview jsonOtchet : getOthcetsNeedReviews()){
+            if (jsonOtchet.getTitle().equals(jsonName))
+                return jsonOtchet;
+        }
+        return null;
+    }
 
     private ArrayList<OtchetWithReview> jsonReaderWithReview() throws JsonProcessingException {
         ArrayList<OtchetWithReview> otchetWithReviews = new ArrayList<>();

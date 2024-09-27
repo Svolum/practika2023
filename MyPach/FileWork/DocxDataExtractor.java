@@ -15,13 +15,13 @@ import java.util.regex.Pattern;
 
 public class DocxDataExtractor {
     private String fileName;
-    private XWPFDocument docs;
+    private XWPFDocument docxs;
     public DocxDataExtractor(String fileName, String workDirectory){
         this.fileName = fileName;
 
         try{
             FileInputStream fis = new FileInputStream(workDirectory + fileName);
-            docs = new XWPFDocument(fis);
+            docxs = new XWPFDocument(fis);
         }
         catch (FileNotFoundException e){
             System.out.println(e.getLocalizedMessage());
@@ -38,7 +38,7 @@ public class DocxDataExtractor {
     public String getProjectTitle(){
         String projectTitle = "";
 
-        List<XWPFTableRow> tableRows = docs.getTableArray(0).getRows();
+        List<XWPFTableRow> tableRows = docxs.getTableArray(0).getRows();
         // The row where program starts to searching the header of title
         int row = 4;
         boolean isTitleHeadLineFinded = false;
@@ -84,17 +84,17 @@ public class DocxDataExtractor {
         int row = 1;
         // To check all field, where supervisor can put fio
         while (!isFIOFinded) {
-            XWPFTableCell cell = docs.getTableArray(0).getRow(row).getCell(0);
+            XWPFTableCell cell = docxs.getTableArray(0).getRow(row).getCell(0);
 
             // Если ячейка почемуто пустая, может быть там форма
             if (cell.getText().isEmpty()) {
                 try {
-                    //XWPFTableCell lol = (XWPFTableCell)docs.getTableArray(0).getRow(row).getTableICells().get(0);
+                    //XWPFTableCell lol = (XWPFTableCell)docxs.getTableArray(0).getRow(row).getTableICells().get(0);
                     // стоит заметить что это просто cell, не SDTCell,  возможно возникнут проблемы, а они возникнут, поэтому надо обработать оба варианта или привести к одному
                     // Первый здесь не сработал, поэтому склоняюсь к этому
 
                     // Здесь другой способ достать данные из формы
-                    supervisorFIO = ((XWPFTableCell) docs.getTableArray(0).getRow(row).getTableICells().get(0)).getTextRecursively().trim();
+                    supervisorFIO = ((XWPFTableCell) docxs.getTableArray(0).getRow(row).getTableICells().get(0)).getTextRecursively().trim();
                     isFIOFinded = true;
                 } catch (Exception e){
                     // а здесь ничего, потому что ячейка может быть просто пустой
@@ -127,7 +127,7 @@ public class DocxDataExtractor {
         int row = 3;
         // To check all field, where supervisor can put fio
         while (!isEmailFinded) {
-            XWPFTableCell cell = docs.getTableArray(0).getRow(row).getCell(0);
+            XWPFTableCell cell = docxs.getTableArray(0).getRow(row).getCell(0);
             for (XWPFParagraph paragraph : cell.getParagraphs()) {
                 String paragraphText = paragraph.getText();
 
@@ -147,7 +147,7 @@ public class DocxDataExtractor {
         return supervisorEmail;
     }
     public String getReview(){
-        List<XWPFTableRow> tableRows = docs.getTableArray(0).getRows();
+        List<XWPFTableRow> tableRows = docxs.getTableArray(0).getRows();
         // The row where program starts to searching the header of title
         int row = 7;
         boolean isTitleReviewFinded = false;
@@ -175,7 +175,7 @@ public class DocxDataExtractor {
         }
 
 
-        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docs.getTableArray(0).getRow(row + 1).getCell(0).getParagraphs();
+        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docxs.getTableArray(0).getRow(row + 1).getCell(0).getParagraphs();
         String endResult = "";
         for (XWPFParagraph paragraph : paragraphs){
             endResult += paragraph.getText().trim();
@@ -195,7 +195,7 @@ public class DocxDataExtractor {
 
     // CHECKERS
     public static String checkFIO(String fio){
-        /* Вот такие формати ФИО ищет
+        /* Вот такие форматы ФИО ищет
             Лена Ано Лео
             Агрошиц Г.Т.
             Именин Т. В.    - здесь пробел есть
