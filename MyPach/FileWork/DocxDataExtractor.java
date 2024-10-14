@@ -4,7 +4,6 @@ import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.*;
 
-import java.io.BufferedReader;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.util.ArrayList;
@@ -24,6 +23,7 @@ public class DocxDataExtractor {
             docxs = new XWPFDocument(fis);
         }
         catch (FileNotFoundException e){
+            System.out.println(fileName);
             System.out.println(e.getLocalizedMessage());
         }
         catch (Exception e){
@@ -31,10 +31,13 @@ public class DocxDataExtractor {
             System.out.println(e.getMessage());
         }
     }
-    // some getters
-    public Othcet getOtchet(){
-        return new Othcet(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
+    public void lol(){
     }
+    // simple getters
+    public FileReport getFileReport(){
+        return new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
+    }
+    // Getters with some logic
     public String getProjectTitle(){
         String projectTitle = "";
 

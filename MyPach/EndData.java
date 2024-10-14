@@ -1,6 +1,6 @@
 package MyPach;
 
-import MyPach.FileWork.Othcet;
+import MyPach.FileWork.FileReport;
 
 public class EndData {
     private int projectId;
@@ -8,15 +8,15 @@ public class EndData {
     private String review;
 
     //////////////////////////////////////////////////////////////////////////////////////////////////////
-    private Othcet othcet;
-    public EndData(Othcet othcet, int projectId, int prevProjectId, String review) {
-        this.othcet = othcet;
+    private FileReport fileReport;
+    public EndData(FileReport fileReport, int projectId, int prevProjectId, String review) {
+        this.fileReport = fileReport;
         this.projectId = projectId;
         this.prevProjectId = prevProjectId;
         this.review = review;
     }
-    public Othcet getFileName(){
-        return othcet;
+    public FileReport getFileReport(){
+        return fileReport;
     }
     //////////////////////////////////////////////////////////////////////////////////////////////////////
     public EndData(int projectId, int prevProjectId, String review) {

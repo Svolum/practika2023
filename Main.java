@@ -1,15 +1,36 @@
+import MyPach.AdminClasses.DBAdmin;
+import MyPach.AdminClasses.FilesAdmin;
+import MyPach.AdminClasses.JsonAdmin;
+import MyPach.Basic.BasicDataExtractor;
+import MyPach.DB.DBFileCreator;
+import MyPach.DB.DBHonoric;
 import MyPach.FileWork.DocxDataExtractor;
-import MyPach.FileWork.FileTypeScanner;
+import MyPach.FileWork.FileReport;
+import MyPach.AdminClasses.FileTypeScanner;
 import MyPach.FileWork.PDFDataExtractor;
 import MyPach.JSON.JSONDataExtractor;
-import MyPach.JSON.OtchetNeedReview;
+import MyPach.JSON.JsonReport;
+import MyPach.Lol;
+import MyPach.Osnovnoe;
 import MyPach.Sravnitel;
-import MyPach.FileWork.Othcet;
 
 import java.util.ArrayList;
 
 public class Main {
     public static void main(String[] args) {
+
+
+
+
+//        new JsonAdmin();
+//        new FilesAdmin();
+//        new Sravnitel();
+//        new DBAdmin();
+        //////////////
+        mainWOrk();
+//        simpleLol();
+        //////////////////////////////////////////////
+
         //new FileFinder();
         //new JSONDataExtractor();
         //workWithCertainFile();
@@ -28,26 +49,49 @@ public class Main {
 //        compareOtchets();
 //        System.out.println(Sravnitel.compareFIO("Яценко Светлана Анатольевна", "Яценко С.А."));
 //        getPDFFileData();
-        someWorkWithPdfFiles();
+//        someWorkWithPdfFiles();
+    }
+    public static void mainWOrk(){
+        // уч год 22-23
+        Osnovnoe.workingPath = "\\отчетыМного\\отчеты наставников 2023-2024\\отчеты наставников\\";
+        Osnovnoe.date_start = "2022-09";
+        Osnovnoe.date_end = "2023-02";
+        // уч год 22-23
+        Osnovnoe.workingPath = "\\отчеты 2022-2023\\отчеты";
+        Osnovnoe.workingPath = "\\отчетыМного\\отчеты 2022-2023\\отчеты\\без экспертов";
+        Osnovnoe.date_start = "2022-09";
+        Osnovnoe.date_end = "2023-02";
+        Osnovnoe.jsonCreatingFileName = "22-23";
+        // Старый или же обычный способ
+//        new DBFileCreator(new Sravnitel().getDbHonorics());
+        // сравнение через MyNode
+//        new DBFileCreator(new Sravnitel().getDbHonoricsThroughMyNode());
+        // для откладки
+        ArrayList<DBHonoric> dbHonorics = new Sravnitel().getDbHonoricsThroughMyNode();
+        dbHonorics.size();
+        new DBFileCreator(dbHonorics);
+    }
+    public static void simpleLol(){
+        new Lol();
     }
     public static void compareOtchets(){
         String otchetName = "Культура безопасности как элемент снижения уровня профессиональных рисков» (Издательство ИРНИТУ, Институт  вечерне-заочного обучения ИРНИТУ)».docx";
-        Othcet othcet = new FileTypeScanner().getOtchet(otchetName);
+        FileReport fileReport = new FileTypeScanner().getOtchet(otchetName);
 
         String jsonTitle = "Профессиональные риски на объектах экономики Иркутской областиКультура безопасности как элемент снижения уровня профессиональных рисков";
-        OtchetNeedReview jsonOtchet = new JSONDataExtractor().getOtchetNeedReview(jsonTitle);
+        JsonReport jsonOtchet = new JSONDataExtractor().getJsonReport(jsonTitle);
 
-        System.out.println(othcet.getTitle());
-        System.out.println(Sravnitel.remainOnlyWords(othcet.getTitle()));
+        System.out.println(fileReport.getTitle());
+        System.out.println(Sravnitel.remainOnlyWords(fileReport.getTitle()));
         System.out.println(jsonOtchet.getTitle());
         System.out.println(Sravnitel.remainOnlyWords(jsonOtchet.getTitle()));
 
-        System.out.println(Sravnitel.lewenstain(othcet.getTitle(), jsonOtchet.getTitle()) + "\t\t| Sravnitel.lewenstain");
-        System.out.println(Sravnitel.compareJsonAndFile(jsonOtchet, othcet) + "\t| Sravnitel.compareJsonAndFile");
-        System.out.println((othcet.getTitle().contains(jsonOtchet.getTitle()) || jsonOtchet.getTitle().contains(othcet.getTitle())) + "\t| contains");
+        System.out.println(Sravnitel.lewenstain(fileReport.getTitle(), jsonOtchet.getTitle()) + "\t\t| Sravnitel.lewenstain");
+        System.out.println(Sravnitel.compareJsonAndFile(jsonOtchet, fileReport) + "\t| Sravnitel.compareJsonAndFile");
+        System.out.println((fileReport.getTitle().contains(jsonOtchet.getTitle()) || jsonOtchet.getTitle().contains(fileReport.getTitle())) + "\t| contains");
 
         System.out.println("-------------------------------------------------------------------------------------------------");
-        System.out.println(othcet);
+        System.out.println(fileReport);
         System.out.println("-------------------------------------------------------------------------------------------------");
         System.out.println(jsonOtchet);
     }
@@ -66,9 +110,9 @@ public class Main {
         System.out.println(rdf.getSupervisorFIO());
     }
     public static void checkJSON(){
-        System.out.println((new JSONDataExtractor().getOthcetsNeedReviews()).size());
+        System.out.println((new JSONDataExtractor().getJsonReports()).size());
         int a = 0;
-        for (var lol : (new JSONDataExtractor().getOthcetsNeedReviews())){
+        for (var lol : (new JSONDataExtractor().getJsonReports())){
             if (lol.getData_start().contains("2023-02")) {
                 System.out.println(lol.getPrev_id());
                 a++;
