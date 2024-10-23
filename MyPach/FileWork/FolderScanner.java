@@ -1,6 +1,7 @@
 package MyPach.FileWork;
 
 import MyPach.AdminClasses.FileTypeScanner;
+import MyPach.Osnovnoe;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -16,7 +17,9 @@ public class FolderScanner {
             файла
         - ""
          */
-        workDirectory = getCurrentDirrectory() + "/отчеты/";
+//        workDirectory = getCurrentDirrectory() + "/отчеты/";
+        workDirectory = getCurrentDirrectory() + Osnovnoe.workingPath;
+//        workDirectory = getWorkDirectory();
         //////////////////////////////////////////////////////////////////////////////////////////////////////////
         ///// РАЗКОММЕНТИТЬ, наверное? или удалить это поле?
 //        fileReports = getFileReports();

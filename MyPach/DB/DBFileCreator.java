@@ -35,6 +35,7 @@ public class DBFileCreator {
             String str = String.format("UPDATE projects\n" +
                     "SET rezult = '%s'\n" +
                     "WHERE id = %d;\n", dbHonoric.getReview(), dbHonoric.getId());
+            String pip = "UPDATE projects SET rezult = ... WHERE id = ...;";
             text += str;
             str = String.format("UPDATE projects\n" +
                     "SET rezult = '%s'\n" +
@@ -58,10 +59,16 @@ public class DBFileCreator {
                 str += objectMapper.writeValueAsString(i);
                 break;
             }*/
+            ArrayList<MyPair> oldMyPairs = new ArrayList<>();
+            if (file.exists() && file.length() != 0) {
+                // Читаем данные из файла в список users
+                oldMyPairs = objectMapper.readValue(file, new TypeReference<ArrayList<MyPair>>() {});
+            }
             for (MyPair myPair: myPairs){
                 str += objectMapper.writeValueAsString(myPair);
             }
-            objectMapper.writeValue(file, myPairs);
+            oldMyPairs.addAll(myPairs);
+            objectMapper.writeValue(file, oldMyPairs);
         }catch (Exception e){
             System.out.println("похоже не записалось");
             System.out.println(e);

@@ -17,16 +17,15 @@ import java.util.regex.Pattern;
 
 public class DocDataExtractor {
     private String fileName;
-    private HWPFDocument docs;
-    WordExtractor wordExtractor;
+    private HWPFDocument doc;
+    private WordExtractor wordExtractor;
     private ArrayList<SupervisorFio> supervisorFios;
     public DocDataExtractor(String  fileName, String workDirectory){
         this.fileName = fileName;
         try {
             FileInputStream fis = new FileInputStream(workDirectory + fileName);
-            docs = new HWPFDocument(fis);
-            wordExtractor = new WordExtractor(docs);
-//            lol();
+            doc = new HWPFDocument(fis);
+            wordExtractor = new WordExtractor(doc);
         }
         catch (FileNotFoundException e){
             System.out.println(fileName);
@@ -36,17 +35,6 @@ public class DocDataExtractor {
             System.out.println(e.getMessage());
             System.out.println(fileName);
         }
-    }
-    public void lol(){
-        String [] paragraphs = wordExtractor.getParagraphText();
-
-/*
-        for (String paragraph : paragraphs){
-            if (paragraph.trim().length() != 0)
-                System.out.println(paragraph.trim());
-        }
-        */
-        System.out.println(getFileReport());
     }
     public FileReport getFileReport(){
         return new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
@@ -60,11 +48,11 @@ public class DocDataExtractor {
             if (paragraph.trim().length() == 0)
                 continue;
             if (t) {
-                if (Sravnitel.lewenstain(paragraph, "Краткое описание проекта") <= 3)
+                if (Osnovnoe.lewenstain(paragraph, "Краткое описание проекта") <= 3)
                     break;
                 projectTitle += paragraph.trim() + "\n";
 //                projectTitle += i.trim() + " ";
-            } else if (Sravnitel.lewenstain(paragraph, "Название проекта ") <= 3) // это триггер
+            } else if (Osnovnoe.lewenstain(paragraph, "Название проекта ") <= 3) // это триггер
                 t = true;
         }
         return projectTitle.trim();
@@ -121,6 +109,8 @@ public class DocDataExtractor {
         return endResult.trim();
     }
     private String checkFIO(String fio){
+        if (supervisorFios == null)
+            supervisorFios = JSONDataExtractor.getSupervisorFios();
         /* Вот такие формати ФИО ищет
             Лена Ано Лео
             Агрошиц Г.Т.

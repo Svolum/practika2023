@@ -1,5 +1,7 @@
 package MyPach.FileWork;
 
+import MyPach.Osnovnoe;
+import MyPach.Sravnitel;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.*;
@@ -163,7 +165,8 @@ public class DocxDataExtractor {
             }
 
             // if Find desired "Название проекта"
-            if (text.contains("Фактически полученный продуктовый результат")) {
+            String findingStr = "Фактически полученный продуктовый результат";
+            if (text.trim().contains(findingStr) || (Osnovnoe.lewenstain(text.trim(), findingStr) - text.trim().length() + findingStr.length() <= 5)) {
                 isTitleReviewFinded = true;
                 break;
             }
@@ -184,7 +187,7 @@ public class DocxDataExtractor {
             endResult += paragraph.getText().trim();
 
             // Если точки(или какого-то спец символа) между абзацами нет, то ставим ее
-            if (Character.isLetter(endResult.charAt(endResult.length()-1)))
+            if ((endResult.length() != 0) && Character.isLetter(endResult.charAt(endResult.length()-1)))
                 endResult += '.';
 
 

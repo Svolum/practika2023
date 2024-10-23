@@ -30,10 +30,10 @@ public class MyNode {
     public String toString() {
         return ids + " | " + titles;
     }
+
     public ArrayList<JsonReport> getJsonReports() {
         return jsonReports;
     }
-
     public void setJsonReports(ArrayList<JsonReport> jsonReports) {
         this.jsonReports = jsonReports;
     }

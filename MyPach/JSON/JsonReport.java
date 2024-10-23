@@ -35,6 +35,8 @@ public class JsonReport {
 
     @JsonProperty("email")
     private String email;
+    @JsonProperty("project_review")
+    private String project_review;
 
     // Конструктор по умолчанию
     public JsonReport() {
@@ -52,7 +54,8 @@ public class JsonReport {
         message += "\n supervisor_id: " + supervisor_id;
         message += "\n project_supervisor_role_id: " + project_supervisor_role_id;
         message += "\n fio: " + fio;
-        message += "\n email: " + email + "\n";
+        message += "\n email: " + email;
+        message += "\n project_review: " + project_review + "\n";
         return message;
     }
 
@@ -119,5 +122,11 @@ public class JsonReport {
     }
     public void setEmail(String email) {
         this.email = email;
+    }
+    public String getProject_review() {
+        return project_review;
+    }
+    public void setProject_review(String project_review) {
+        this.project_review = project_review;
     }
 }

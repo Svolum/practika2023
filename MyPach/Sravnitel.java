@@ -375,7 +375,7 @@ public class Sravnitel {
         }
         System.out.println("dbHonorics=" + dbHonorics.size());
     }
-
+    
     public ArrayList<DBHonoric> getDbHonorics() {
         dbHonorics = new ArrayList<>();
 

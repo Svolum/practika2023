@@ -2,7 +2,6 @@ package MyPach.JSON;
 
 
 
-import MyPach.Basic.DataExtractor;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -12,52 +11,12 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class JSONDataExtractor {
-
-    private ObjectMapper objectMapper;
-    private ArrayList<String> supervisorsFIO;
+    private ArrayList<JsonReport> jsonReports;
     public JSONDataExtractor(){
-        objectMapper = new ObjectMapper();
-        supervisorsFIO = new ArrayList<>();
-    }
-    public ArrayList<JsonReportAdvanced> getJsonReportAdvanced(){
-        ArrayList<JsonReportAdvanced> jsonReportAdvanceds = new ArrayList<>();
+        jsonReports = new ArrayList<>();
+
+        // для того чтоб роль была того человека который проектом руководит
         try {
-            jsonReportAdvanceds = jsonReaderAdvancedReport();
-        }catch (Exception e){
-            System.out.println(e.getClass().getName());
-            System.out.println(e);
-        }
-        return jsonReportAdvanceds;
-    }
-    public ArrayList<JsonReport> getJsonReports(){
-        ArrayList<JsonReport> jsonReports = new ArrayList<>();
-        try {
-            jsonReports = jsonReaderReports();
-        }catch (Exception e){
-            System.out.println(e.getClass().getName());
-            System.out.println(e);
-        }
-        return jsonReports;
-    }
-    // учитывая, что role_id мне нужен тольео (=) 2
-    public ArrayList<JsonReportAdvanced> getJsonReportAdvancedOnlyRole(){
-        ArrayList<JsonReportAdvanced> jsonReportAdvanceds = new ArrayList<>();
-        try {
-//            jsonReportAdvanceds = jsonReaderAdvancedReport();
-            for (JsonReportAdvanced jsonReport : jsonReaderAdvancedReport()){
-                if (jsonReport.getProject_supervisor_role_id() == 2)
-                    jsonReportAdvanceds.add(jsonReport);
-            }
-        }catch (Exception e){
-            System.out.println(e.getClass().getName());
-            System.out.println(e);
-        }
-        return jsonReportAdvanceds;
-    }
-    public ArrayList<JsonReport> getJsonReportsOnlyRole(){
-        ArrayList<JsonReport> jsonReports = new ArrayList<>();
-        try {
-//            jsonReports = jsonReaderReports();
             for (JsonReport jsonReport : jsonReaderReports()){
                 if (jsonReport.getProject_supervisor_role_id() == 2)
                     jsonReports.add(jsonReport);
@@ -66,38 +25,13 @@ public class JSONDataExtractor {
             System.out.println(e.getClass().getName());
             System.out.println(e);
         }
-        return jsonReports;
-    }
-    /////////////////////////////////////////
-    public JsonReport getJsonReport(String jsonName){
-        for (JsonReport jsonOtchet : getJsonReports()){
-            if (jsonOtchet.getTitle().equals(jsonName))
-                return jsonOtchet;
-        }
-        return null;
-    }
-    public JsonReport getJsonReport(int project_id){
-        for (JsonReport jsonOtchet : getJsonReports()){
-            if (jsonOtchet.getProject_id() == project_id)
-                return jsonOtchet;
-        }
-        return null;
-    }
-
-    private ArrayList<JsonReportAdvanced> jsonReaderAdvancedReport() throws JsonProcessingException {
-        ArrayList<JsonReportAdvanced> jsonReportAdvanceds = new ArrayList<>();
-        try{
-            jsonReportAdvanceds = objectMapper.readValue(new File("Data\\withreview.json"), new TypeReference<ArrayList<JsonReportAdvanced>>(){});
-        }catch (Exception e){
-            System.out.println(e.getClass().getName());
-            System.out.println(e);
-        }
-        return jsonReportAdvanceds;
     }
     private ArrayList<JsonReport> jsonReaderReports() throws JsonProcessingException {
+        ObjectMapper objectMapper = new ObjectMapper();
         ArrayList<JsonReport> jsonReports = new ArrayList<>();
         try{
             jsonReports = objectMapper.readValue(new File("Data\\needreview.json"), new TypeReference<ArrayList<JsonReport>>(){});
+            jsonReports.addAll(objectMapper.readValue(new File("Data\\withreview.json"), new TypeReference<ArrayList<JsonReport>>(){}));
         }catch (Exception e){
             System.out.println(e.getClass().getName());
             System.out.println(e);
@@ -115,5 +49,22 @@ public class JSONDataExtractor {
             supervisorFios.add(new SupervisorFio(fio));
         }
         return supervisorFios;
+    }
+    public JsonReport getJsonReport(String jsonName){
+        for (JsonReport jsonOtchet : jsonReports){
+            if (jsonOtchet.getTitle().equals(jsonName))
+                return jsonOtchet;
+        }
+        return null;
+    }
+    public JsonReport getJsonReport(int project_id){
+        for (JsonReport jsonOtchet : jsonReports){
+            if (jsonOtchet.getProject_id() == project_id)
+                return jsonOtchet;
+        }
+        return null;
+    }
+    public ArrayList<JsonReport> getJsonReports(){
+        return jsonReports;
     }
 }
