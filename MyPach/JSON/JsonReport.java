@@ -60,7 +60,6 @@ public class JsonReport {
     }
 
     // Геттеры и сеттеры
-
     public int getProject_id() {
         return project_id;
     }

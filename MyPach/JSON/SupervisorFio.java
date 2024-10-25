@@ -83,18 +83,16 @@ public class SupervisorFio{
         return true;
     }
 
+    // GETTERS & SETTERS
     public String getFio() {
         return fio;
     }
-
     public boolean[] getIsFioWrittenShort() {
         return isFioWrittenShort;
     }
-
     public boolean[] getHasFioDot() {
         return hasFioDot;
     }
-
     public int getFioLenght() {
         return fioLenght;
     }

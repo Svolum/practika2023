@@ -15,7 +15,6 @@ public class FileReport {
         this.email = email;
         this.review = review;
     }
-
     @Override
     public String toString() {
         return fileName + "\n" +
@@ -33,6 +32,7 @@ public class FileReport {
                 email;
     }
 
+    // GETTERS & SETTERS
     public String getFileName() {
         return fileName;
     }

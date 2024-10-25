@@ -33,8 +33,7 @@ public class JSONDataExtractor {
             jsonReports = objectMapper.readValue(new File("Data\\needreview.json"), new TypeReference<ArrayList<JsonReport>>(){});
             jsonReports.addAll(objectMapper.readValue(new File("Data\\withreview.json"), new TypeReference<ArrayList<JsonReport>>(){}));
         }catch (Exception e){
-            System.out.println(e.getClass().getName());
-            System.out.println(e);
+            System.out.println(e.getMessage());
         }
         return jsonReports;
     }
@@ -64,6 +63,8 @@ public class JSONDataExtractor {
         }
         return null;
     }
+
+    // GETTERS & SETTERS
     public ArrayList<JsonReport> getJsonReports(){
         return jsonReports;
     }

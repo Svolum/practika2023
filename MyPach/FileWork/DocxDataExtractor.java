@@ -1,7 +1,6 @@
 package MyPach.FileWork;
 
 import MyPach.Osnovnoe;
-import MyPach.Sravnitel;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.*;
@@ -18,8 +17,11 @@ public class DocxDataExtractor {
     private String fileName;
     private XWPFDocument docxs;
     public DocxDataExtractor(String fileName, String workDirectory){
+        /*
+        - вызывается getFileReport
+        - он создает объект FileReport вызывая другие функции, которые вытаскивают нужные данные
+         */
         this.fileName = fileName;
-
         try{
             FileInputStream fis = new FileInputStream(workDirectory + fileName);
             docxs = new XWPFDocument(fis);
@@ -33,13 +35,9 @@ public class DocxDataExtractor {
             System.out.println(e.getMessage());
         }
     }
-    public void lol(){
-    }
-    // simple getters
     public FileReport getFileReport(){
         return new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
     }
-    // Getters with some logic
     public String getProjectTitle(){
         String projectTitle = "";
 
@@ -94,17 +92,11 @@ public class DocxDataExtractor {
             // Если ячейка почемуто пустая, может быть там форма
             if (cell.getText().isEmpty()) {
                 try {
-                    //XWPFTableCell lol = (XWPFTableCell)docxs.getTableArray(0).getRow(row).getTableICells().get(0);
-                    // стоит заметить что это просто cell, не SDTCell,  возможно возникнут проблемы, а они возникнут, поэтому надо обработать оба варианта или привести к одному
-                    // Первый здесь не сработал, поэтому склоняюсь к этому
-
-                    // Здесь другой способ достать данные из формы
                     supervisorFIO = ((XWPFTableCell) docxs.getTableArray(0).getRow(row).getTableICells().get(0)).getTextRecursively().trim();
                     isFIOFinded = true;
                 } catch (Exception e){
                     // а здесь ничего, потому что ячейка может быть просто пустой
                 }
-                ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
             }
             for (XWPFParagraph paragraph : cell.getParagraphs()) {
                 String paragraphText = paragraph.getText();
@@ -163,10 +155,9 @@ public class DocxDataExtractor {
             }catch (Exception e){
                 text = ((XWPFSDTCell)tableRows.get(row).getTableICells().get(0)).getContent().getText();
             }
-
             // if Find desired "Название проекта"
-            String findingStr = "Фактически полученный продуктовый результат";
-            if (text.trim().contains(findingStr) || (Osnovnoe.lewenstain(text.trim(), findingStr) - text.trim().length() + findingStr.length() <= 5)) {
+            String desiredStr = "Фактически полученный продуктовый результат";
+            if (text.trim().contains(desiredStr) || (Osnovnoe.lewenstain(text.trim(), desiredStr) - text.trim().length() + desiredStr.length() <= 5)) {
                 isTitleReviewFinded = true;
                 break;
             }
@@ -181,7 +172,8 @@ public class DocxDataExtractor {
         }
 
 
-        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docxs.getTableArray(0).getRow(row + 1).getCell(0).getParagraphs();
+        ArrayList<XWPFParagraph> paragraphs = (ArrayList<XWPFParagraph>) docxs.getTableArray(0).
+                getRow(row + 1).getCell(0).getParagraphs();
         String endResult = "";
         for (XWPFParagraph paragraph : paragraphs){
             endResult += paragraph.getText().trim();
@@ -197,7 +189,6 @@ public class DocxDataExtractor {
         }
         return endResult;
     }
-
 
     // CHECKERS
     public static String checkFIO(String fio){

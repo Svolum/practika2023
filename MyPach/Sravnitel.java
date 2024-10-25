@@ -5,12 +5,10 @@ import MyPach.AdminClasses.JsonAdmin;
 import MyPach.DB.DBHonoric;
 import MyPach.DB.Honoric;
 import MyPach.FileWork.FileReport;
-import MyPach.AdminClasses.FileTypeScanner;
-import MyPach.JSON.JSONDataExtractor;
+import MyPach.FileWork.FolderScanner;
 import MyPach.JSON.JsonReport;
-import MyPach.JSON.MyNode;
+import MyPach.JSON.ProjectFlow;
 
-import java.security.PublicKey;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -41,7 +39,7 @@ public class Sravnitel {
         System.out.println("_________________________________________________________________________________________________");
         System.out.println("-------------------------------------------------------------------------------------------------");
         System.out.println("Дубли:\n");
-        ArrayList<FileReport> array = new FileTypeScanner().getOthcets();
+        ArrayList<FileReport> array = new FolderScanner().getFileReports();
         int numberOfUniqueOtchets = 0;
 
         ArrayList<FileReport> checkedOtchets = new ArrayList<>();
@@ -70,7 +68,7 @@ public class Sravnitel {
         return -1;
     }
     public static ArrayList<String> getDublesOtchetFileNames(){
-        ArrayList<FileReport> array = new FileTypeScanner().getOthcets();
+        ArrayList<FileReport> array = new FolderScanner().getFileReports();
 
         ArrayList<FileReport> checkedOtchets = new ArrayList<>();
         ArrayList<String> dublesOtchetFileNames = new ArrayList<>();
@@ -95,10 +93,6 @@ public class Sravnitel {
         return dublesOtchetFileNames;
     }
     private void generalLogic(){
-        // старое
-        /*fileReports = new FileTypeScanner().getOthcets();
-        jsonReports = new JSONDataExtractor().getJsonReports();*/
-        // Новое
         jsonReports = new JsonAdmin().getData();
         fileReports = new FilesAdmin().getData();
 
@@ -232,7 +226,7 @@ public class Sravnitel {
         System.out.println("\n\n\n");*/
     }
     private void generalLogicThroughMyNode(){
-        ArrayList<MyNode> myNodes = new JsonAdmin().getProjectTitles();
+        ArrayList<ProjectFlow> projectFlows = new JsonAdmin().getProjectFlows();
         fileReports = new FilesAdmin().getData();
 
 
@@ -256,12 +250,12 @@ public class Sravnitel {
             boolean isFall = false;
             boolean isSpring = false;
 
-            for (MyNode myNode : myNodes){
-                if (compareMyNodeAndFile(myNode, fileReport) == false)
+            for (ProjectFlow projectFlow : projectFlows){
+                if (compareMyNodeAndFile(projectFlow, fileReport) == false)
                     continue;
                 JsonReport jsonFallReport = null;
                 JsonReport jsonSpringReport = null;
-                for (JsonReport jsonReport : myNode.getJsonReports()){
+                for (JsonReport jsonReport : projectFlow.getJsonReports()){
                     if (Osnovnoe.compareDates(jsonReport.getData_start(), Osnovnoe.date_start)) // Осень
                         jsonFallReport = jsonReport;
                     else if (Osnovnoe.compareDates(jsonReport.getData_start(), Osnovnoe.date_end)) // Весна
@@ -484,9 +478,9 @@ public class Sravnitel {
                 )
         ;
     }
-    public static boolean compareMyNodeAndFile(MyNode myNode, FileReport fileReport){
+    public static boolean compareMyNodeAndFile(ProjectFlow projectFlow, FileReport fileReport){
         boolean titleFitting = false;
-        for (String title : myNode.getTitles()){
+        for (String title : projectFlow.getTitles()){
             if (compareTwoTitles(title, fileReport.getTitle())){
                 titleFitting = true;
                 break;
@@ -494,7 +488,7 @@ public class Sravnitel {
         }
         if (titleFitting == false) // Если ни один title из ветки названий проекта не подошел
             return false;
-        for (JsonReport jsonReport : myNode.getJsonReports()){
+        for (JsonReport jsonReport : projectFlow.getJsonReports()){
             // поиск ПОДХОДЯЩЯГО report, хотя их может быть и 2. Точнее это наиболее вероятно, что их 2
             // однако для проверки достаточно и одного
             if (Osnovnoe.isDateInTimeRange(jsonReport.getData_start()) || Osnovnoe.isDateInTimeRange(jsonReport.getData_end())){

@@ -3,16 +3,17 @@ package MyPach.JSON;
 import java.util.ArrayList;
 import java.util.HashSet;
 
-public class MyNode {
+public class ProjectFlow {
     private ArrayList<JsonReport> jsonReports;
     private HashSet<String> titles;
     private ArrayList<Integer> ids;
-    public MyNode(){
+    public ProjectFlow(){
+        // по сути проекты - это что-то многосеместровое, а в базе оно разбито на семестры, ProjectFlow собирает все обратно
         jsonReports = new ArrayList<>();
         titles = new HashSet<>();
         ids = new ArrayList<>();
     }
-    public MyNode(JsonReport jsonReport){
+    public ProjectFlow(JsonReport jsonReport){
         jsonReports = new ArrayList<>();
         titles = new HashSet<>();
         ids = new ArrayList<>();
@@ -31,6 +32,7 @@ public class MyNode {
         return ids + " | " + titles;
     }
 
+    // GETTERS & SETTERS
     public ArrayList<JsonReport> getJsonReports() {
         return jsonReports;
     }

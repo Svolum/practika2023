@@ -21,10 +21,12 @@ public class DBAdmin {
         jsonReports = new JsonAdmin().getData();
         fileReports = new FilesAdmin().getData();
 
-        lol();
-//        generalLogic();
+//        lol();
+        generalLogic();
     }
     public void lol(){
+        /* функция используется для отладки или проверки каких-то элементов программы
+         */
         honorics = new ArrayList<>();
 
         System.out.println("jsonReports" + jsonReports.size());

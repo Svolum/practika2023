@@ -9,7 +9,9 @@ public class MyPair {
     private String review;
 
     public MyPair(){
+        /* данный класс используется для записи данных в файл формата .json с помощью jackson
 
+         */
     }
     public MyPair(int id, String review) {
         this.id = id;

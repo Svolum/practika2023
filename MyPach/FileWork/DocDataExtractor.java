@@ -3,11 +3,8 @@ package MyPach.FileWork;
 import MyPach.JSON.JSONDataExtractor;
 import MyPach.JSON.SupervisorFio;
 import MyPach.Osnovnoe;
-import MyPach.Sravnitel;
 import org.apache.poi.hwpf.HWPFDocument;
 import org.apache.poi.hwpf.extractor.WordExtractor;
-import org.apache.poi.hwpf.usermodel.Range;
-import org.apache.poi.xwpf.usermodel.XWPFDocument;
 
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -21,6 +18,10 @@ public class DocDataExtractor {
     private WordExtractor wordExtractor;
     private ArrayList<SupervisorFio> supervisorFios;
     public DocDataExtractor(String  fileName, String workDirectory){
+        /*
+        - вызывается getFileReport
+        - он создает объект FileReport вызывая другие функции, которые вытаскивают нужные данные
+         */
         this.fileName = fileName;
         try {
             FileInputStream fis = new FileInputStream(workDirectory + fileName);
@@ -51,9 +52,13 @@ public class DocDataExtractor {
                 if (Osnovnoe.lewenstain(paragraph, "Краткое описание проекта") <= 3)
                     break;
                 projectTitle += paragraph.trim() + "\n";
-//                projectTitle += i.trim() + " ";
             } else if (Osnovnoe.lewenstain(paragraph, "Название проекта ") <= 3) // это триггер
                 t = true;
+        }
+        if (projectTitle.trim().length() == 0){
+            System.out.println("------------------------------------------------------------");
+            System.out.println("getProjectTitle - че-то не может найти название\n" + fileName);
+            System.out.println("------------------------------------------------------------");
         }
         return projectTitle.trim();
     }
@@ -108,6 +113,8 @@ public class DocDataExtractor {
         }
         return endResult.trim();
     }
+
+    // Checkers
     private String checkFIO(String fio){
         if (supervisorFios == null)
             supervisorFios = JSONDataExtractor.getSupervisorFios();
@@ -122,9 +129,7 @@ public class DocDataExtractor {
 
         Matcher matcher = pattern.matcher(fio);
         if (matcher.find()) {
-//            return matcher.group().equals("Иркутский Национальный Исследовательский")?null:matcher.group(); // это надо пофиксить
             for (SupervisorFio supervisorFio : supervisorFios)
-//                return supervisorFio.equals(matcher.group())?matcher.group():null;
                 if (supervisorFio.equals(matcher.group()))
                     return matcher.group();
         }

@@ -1,6 +1,5 @@
 package MyPach.FileWork;
 
-import MyPach.AdminClasses.FileTypeScanner;
 import MyPach.Osnovnoe;
 
 import java.io.File;
@@ -8,31 +7,19 @@ import java.util.ArrayList;
 
 public class FolderScanner {
     private String workDirectory;
-    private ArrayList<FileReport> fileReports;
     public FolderScanner(){
         /*
         как рабоает класс:
-        - "getPDFileNames" Сканирует папку отчеты и получает названия файлов типа pdf, docx, doc
-        - "getFileExtension" используется внутри "getPDFileNames" для получения и последующей проверки расширения
-            файла
-        - ""
+        - Вызывается функция getFileReports
+        - он вызывает getFileDocxReports, getFilePdfReports, getFileDocReports
+        - они, каждый сканирует папку в поисках своего расширения, создают массив, и все 3 массива объеденяются в 1
          */
-//        workDirectory = getCurrentDirrectory() + "/отчеты/";
-        workDirectory = getCurrentDirrectory() + Osnovnoe.workingPath;
-//        workDirectory = getWorkDirectory();
-        //////////////////////////////////////////////////////////////////////////////////////////////////////////
-        ///// РАЗКОММЕНТИТЬ, наверное? или удалить это поле?
-//        fileReports = getFileReports();
-    }
-    // Static methods
-    public static String getCurrentDirrectory(){
-        return System.getProperty("user.dir");
+        workDirectory = Osnovnoe.getCurrentDirrectory() + Osnovnoe.workingPath;
     }
     public static String getFileExtension(String fileName) {
         int index = fileName.lastIndexOf('.');
         return index == -1? null : fileName.substring(index + 1); // "+ 1" что бы точку убрать
     }
-    // Getters with some logic
     public ArrayList<String> getFileNames(String extention){
         extention = extention.replace(".", "");
         ArrayList<String> fileNames = new ArrayList<>();
@@ -54,10 +41,11 @@ public class FolderScanner {
         fileReports.addAll(getFileDocxReports());
         fileReports.addAll(getFilePdfReports());
         fileReports.addAll(getFileDocReports());
-        // здесь будет что-то вроде добавить массив к массиву
         return fileReports;
     }
-    public ArrayList<FileReport> getFileDocxReports(){ // и даже сдезь я не могу полностью доверять этому коду
+
+    // GET Files certain extention names
+    public ArrayList<FileReport> getFileDocxReports(){
         ArrayList<FileReport> fileDocxReports = new ArrayList<>();
         DocxDataExtractor dataExtractor;
 
@@ -90,15 +78,10 @@ public class FolderScanner {
 
             fileDocReports.add(dataExtractor.getFileReport());
         }
-        // show some data to ensure
-        /*System.out.println("FolderScanner");
-        System.out.println("getFileNames(\".pdf\")="+getFileNames(".doc").size());
-        System.out.println("a = " + a);
-        System.out.println("fileDocReports=" + fileDocReports.size());
-        System.out.println("FolderScanner");*/
         return fileDocReports;
     }
-    // Simple field getters
+
+    // GETTERS & SETTERS
     public String getWorkDirectory(){
         return  workDirectory;
     }
