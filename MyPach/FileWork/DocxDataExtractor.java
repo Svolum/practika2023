@@ -36,7 +36,9 @@ public class DocxDataExtractor {
         }
     }
     public FileReport getFileReport(){
-        return new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
+        FileReport fileReport = new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
+        return fileReport;
+//        return new FileReport(fileName, getProjectTitle(), getSupervisorFIO(), getSupervisorEmail(), getReview());
     }
     public String getProjectTitle(){
         String projectTitle = "";
@@ -157,13 +159,15 @@ public class DocxDataExtractor {
             }
             // if Find desired "Название проекта"
             String desiredStr = "Фактически полученный продуктовый результат";
-            if (text.trim().contains(desiredStr) || (Osnovnoe.lewenstain(text.trim(), desiredStr) - text.trim().length() + desiredStr.length() <= 5)) {
+            if ((Osnovnoe.remainOnlyWords(text).length() != 0) &&
+                    (text.trim().contains(desiredStr) || (Osnovnoe.lewenstainExtendedTitles(desiredStr, text) <= 1))) {
                 isTitleReviewFinded = true;
+//                System.out.println(Osnovnoe.lewenstainExtendedTitles(desiredStr, text) + " | " + fileName);
+//                System.out.println(Osnovnoe.lewenstainExtendedTitles(desiredStr, text));
                 break;
             }
             row++;
-            // 4 is random number i pucked up
-            if (row > tableRows.size() - 4) { // this 4
+            if (row > tableRows.size() - 4) {
                 System.out.println("------------------------------------------------------------");
                 System.out.println("getReview - че-то не может найти название фактического результата\n" + fileName);
                 System.out.println("------------------------------------------------------------");

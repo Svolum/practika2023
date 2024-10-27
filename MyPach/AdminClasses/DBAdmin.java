@@ -1,123 +1,80 @@
 package MyPach.AdminClasses;
 
+import MyPach.DB.DBFileCreator;
+import MyPach.DB.DBHonoric;
 import MyPach.DB.Honoric;
 import MyPach.EndData;
 import MyPach.FileWork.FileReport;
 import MyPach.JSON.JsonReport;
+import MyPach.JSON.ProjectFlow;
 import MyPach.Osnovnoe;
 import MyPach.Sravnitel;
 
-import java.security.PublicKey;
-import java.security.SecureRandom;
 import java.util.ArrayList;
 import java.util.HashSet;
 
 public class DBAdmin {
+    private JsonAdmin jsonAdmin;
     private ArrayList<JsonReport> jsonReports;
+    private ArrayList<ProjectFlow> projectFlows;
     private ArrayList<FileReport> fileReports;
-    private ArrayList<Honoric> honorics;
     public DBAdmin(){
+        /*
+        - Конструктор заполняет необходимые поля
+        - а в функции createDBHonorics, происходит очень важный процесс поиска результата(review) своего project_id
+        - а потом можно вызвать logic, который создать json файлик, путем вызова DBFileCreator
+         */
+        jsonAdmin = new JsonAdmin();
         // вообще можно брать на прямую, просто перейди в функции getData и поймещь
-        jsonReports = new JsonAdmin().getData();
+        jsonReports = jsonAdmin.getData();
+        projectFlows = jsonAdmin.getProjectFlows();
         fileReports = new FilesAdmin().getData();
 
-//        lol();
-        generalLogic();
+        logic();
     }
-    public void lol(){
-        /* функция используется для отладки или проверки каких-то элементов программы
-         */
-        honorics = new ArrayList<>();
-
-        System.out.println("jsonReports" + jsonReports.size());
-        System.out.println("fileReports" + fileReports.size());
-        for (FileReport fileReport : fileReports){
-            if (fileReport.getFio() == null)
-                continue;
-            for (JsonReport jsonReport : jsonReports){
-                try {
-                    if (Osnovnoe.lewenstainExtended(fileReport.getTitle(), jsonReport.getTitle()) > 4) {
-                        continue;
-                    }
-                    if (Osnovnoe.lewenstainExtended(fileReport.getFio(), jsonReport.getFio()) > 4) {
-                        continue;
-                    }
-                }catch (Exception e){
-
-                    continue;
-                }
-                honorics.add(new Honoric(jsonReport.getProject_id(), jsonReport.getPrev_id(), fileReport.getReview(), fileReport, jsonReport));
-                break;
-            }
-            System.out.println("\nherehereherehereherehereherehereherehereherehereherehereherehere\n");
-        }
-        System.out.println("honorics=" + honorics.size());
-    }
-    private void generalLogic(){
-
-
+    private void lol(){
+        // переменные для отладки
+        /////////////////////////////////////
         var alredyExistingId = new HashSet<>();
         ArrayList<EndData> endDataFall = new ArrayList<>();
         ArrayList<EndData> endDataSpring = new ArrayList<>();
-
+        boolean isFall;
+        boolean isSpring;
 
         int countOfYearReports = 0;
-
-        ArrayList<String> dublesOtchetFileNames = Sravnitel.getDublesOtchetFileNames();
+        /////////////////////////////////////
 
         for (FileReport fileReport : fileReports){
-            // Если есть такие отчеты, которые не читаются, имена их фалов надо закинуть в спец массив
-            // Надо написать чеккер на не null важных полей и вызывать его, а не делать эти ифы
             if (fileReport.getFio() == null)
                 continue;
-            /*if (dublesOtchetFileNames.contains(fileReport.getFileName()))
-                // я даже не знаю, кажется это должно добавлять количество файлов в отстойнике
-                continue;*/
 
-
-
-            boolean isFall = false;
-            boolean isSpring = false;
+            isFall = false;
+            isSpring = false;
 
             for (JsonReport jsonReport : jsonReports){
                 if (Sravnitel.compareJsonAndFile(jsonReport, fileReport)){
-                    /*String searchingTitle = "Культура безопасности как элемент снижения уровня профессиональных рисков";
-                    if (jsonReport.getTitle().equals(searchingTitle)) {
-                        System.out.println("X#");
-                        System.out.println(fileReport.getTitle());
-                        System.out.println(fileReport.getFileName());
-                        System.out.println("X-->");
-                    }*/
 
                     int projectId = jsonReport.getProject_id();
-                    // Исключает дубли, есть 2 версии 1 файла, АКТУАЛЬНОСТЬ оставшегося файла проверить, пока что, НЕВОЗМОЖНО
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // Возможно исключает те отчеты, которые длятся только осенью
-                    //////////////////////////////////////////////////////////////////////////////////////////////////////////
-                    // т.е. еще надо проверить как это работает
-                    if (alredyExistingId.contains(projectId)) // итак вопрос, почему 1 проект, может откликаться больше чем на 1 отчет
-                        continue; // Если убрать то countOfYearEndData, возможно будет больше количества весенних EndData
-                    /*if (jsonReport.getTitle().equals(searchingTitle)){
-                        System.out.println("Here");
-                    }*/
+
+                    if (alredyExistingId.contains(projectId))
+                        continue;
 
                     fileReport.setProject_id(projectId);
                     alredyExistingId.add(projectId);
-
 
                     if (jsonReport.getPrev_id() != 0) {
                         alredyExistingId.add(jsonReport.getPrev_id());
                     }
 
                     // END DATA
-                    if (jsonReport.getData_start().contains("2022-09")) {
+                    if (jsonReport.getData_start().contains(Osnovnoe.date_start)) {
                         // ОСЕНЬ
                         EndData ed = new EndData(fileReport, projectId, jsonReport.getPrev_id(), fileReport.getReview());
                         endDataFall.add(ed);
 
                         isFall = true;
                     }
-                    else if (jsonReport.getData_start().contains("2023-02")){
+                    else if (jsonReport.getData_start().contains(Osnovnoe.date_end)){
                         // ВЕСНА
                         EndData ed = new EndData(fileReport, projectId, jsonReport.getPrev_id(), fileReport.getReview());
                         endDataSpring.add(ed);
@@ -140,43 +97,37 @@ public class DBAdmin {
         System.out.println("Count of lonly files = " + countOfLonlyFiles);
 
         // Почему-то не сходится, поэтому положусь на данные из БД т.е. на EndData
-        System.out.println("Count of year reports = " + countOfYearReports + " // not exactly");
+        System.out.println("Count of year reports = " + countOfYearReports);
         int countOfYearEndData = 0;
-        for (var fall: endDataFall){
-            boolean notIsYearProject = true;
-            for (var spring: endDataSpring){
+        for (EndData fall: endDataFall){
+            for (EndData spring: endDataSpring){
                 if (fall.getProjectId() == spring.getPrevProjectId()){
-                    notIsYearProject = false;
                     countOfYearEndData++;
                 }
-            }
-            if (notIsYearProject) {
-                // count of semestr reports
             }
         }
         System.out.println("count of year EndData = " + countOfYearEndData + " // can respond for more then 1 fall EndData");
 
-        System.out.println("ids = " + alredyExistingId.size());
-        System.out.println("FALL    = " + endDataFall.size());
-        System.out.println("SPRING  = " + endDataSpring.size());
+        System.out.println("alredyExistingId = " + alredyExistingId.size());
+        System.out.println("endDataFall    = " + endDataFall.size());
+        System.out.println("endDataSpring  = " + endDataSpring.size());
 
-
+        // файлы, которым не нашлось пары
         int a = 0;
-        ArrayList<String> fileNamesWitoutPair = Sravnitel.getFileNamesWithoutPair();
-        for (FileReport fileReport : fileReports){
-            if (fileReport.getProject_id() == 0){
-                if (dublesOtchetFileNames.contains(fileReport.getFileName()))
-                    continue;
-                if (fileNamesWitoutPair.contains(fileReport.getFileName()))
-                    continue;
+    }
+    public ArrayList<DBHonoric> createDBHonorics(){
+        ArrayList<DBHonoric> dbHonorics = new ArrayList<>();
 
-                System.out.println(fileReport.toString(0));
-                System.out.println("-------------------------------------------------------------------------------------------------");
-                a++;
+        for (ProjectFlow projectFlow : projectFlows){
+            for (FileReport fileReport : fileReports){
+                if (fileReport.getFio() == null)
+                    continue;
+                dbHonorics.addAll(projectFlow.getDBHonorics(fileReport));
             }
         }
-        System.out.println("\n\n\n");
-        System.out.println("a = " + a + " | кол-во файлов, которым прога не нашла пары, и которые я пока считаю не дефектными");
-        System.out.println("\n\n\n");
+        return dbHonorics;
+    }
+    public void logic(){
+        new DBFileCreator("OUT_REZULT\\pairs", createDBHonorics());
     }
 }

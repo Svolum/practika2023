@@ -2,6 +2,7 @@ package MyPach.DB;
 
 import MyPach.FileWork.FileReport;
 import MyPach.JSON.JsonReport;
+import com.fasterxml.jackson.annotation.JsonProperty;
 
 import java.io.File;
 

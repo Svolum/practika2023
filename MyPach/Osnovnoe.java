@@ -1,5 +1,10 @@
 package MyPach;
 
+import MyPach.FileWork.FileReport;
+import MyPach.JSON.JsonReport;
+import MyPach.JSON.SupervisorFio;
+import org.apache.poi.util.StringUtil;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -30,18 +35,15 @@ public class Osnovnoe {
     public static String getCurrentDirrectory(){
         return System.getProperty("user.dir");
     }
-//    public static String getWorkingDirectory(){
-//        return getCurrentDirrectory() + "\\отчеты\\";
-//    }
     public static String getWorkingDirectory(){
         return getCurrentDirrectory() + workingPath;
     }
     public static int lewenstain(String s, String q){ // basic method // нативный
-        /*int up = 1; // prev j in column (i, j-1)
-        int left = 1; // prev i in row (i - 1, j)
-        int prev = 0; // just prev (i - 1, j - 1)
-        //int cur; // (i, j)*/
-
+        if (s.length() > q.length()){
+            String tempStr = s;
+            s = q;
+            q = tempStr;
+        }
         int prev = 0;
         int[] up = new int[q.length()];
         int[] left = new int[s.length()];
@@ -68,51 +70,24 @@ public class Osnovnoe {
     }
     // регистро не зависимо(toLowerCase) и такие буквы как е и ё или и и й считаются одной и тоже буквой
     public static int lewenstainExtended(String s, String q){
-        /*int up = 1; // prev j in column (i, j-1)
-        int left = 1; // prev i in row (i - 1, j)
-        int prev = 0; // just prev (i - 1, j - 1)
-        //int cur; // (i, j)*/
         s = Osnovnoe.remainOnlyWords(s);
         q = Osnovnoe.remainOnlyWords(q);
 
-        int prev = 0;
-        int[] up = new int[q.length()];
-        int[] left = new int[s.length()];
-        int cur = 0;
-        for (int i = 0; i < s.length(); i++){
-            left[i] = i + 1;
-            for (int j = 0; j < q.length(); j++){
-                if (i == 0)
-                    up[j] = j + 1;
+        s = s.replaceAll("ё", "е");
+        s = s.replaceAll("й", "и");
+        q = q.replaceAll("ё", "е");
+        q = q.replaceAll("й", "и");
 
-                int a = up[j] + 1;
-                int b = left[i] + 1;
-                int c = prev;
-                if ((s.charAt(i) != q.charAt(j))) {
-                    /*if (
-                            (
-                                    (
-                                            (s.charAt(i) == 'е' && q.charAt(i) == 'ё') ||
-                                            (s.charAt(i) == 'ё' && q.charAt(i) == 'е')
-                                    ) == false
-                            ) &&
-                            (
-                                    (
-                                            (s.charAt(i) == 'и' && q.charAt(i) == 'й') ||
-                                            (s.charAt(i) == 'й' && q.charAt(i) == 'и')
-                                    ) == false
-                            )
-                    )*/
-                        c++;
-                }
-                cur = Math.min(Math.min(a, b), c);
-
-                prev = up[j];
-                left[i] = cur;
-                up[j] = cur;
-            }
-        }
-        return cur;
+        return lewenstain(s, q);
+    }
+    public static int lewenstainExtendedTitles(String s, String q){
+        /*return (s.length() > q.length()) ?
+                lewenstainExtended(s, q) - Math.abs(s.length() - q.length()) :
+                lewenstainExtended(q, s) - Math.abs(s.length() - q.length());*/
+        return lewenstainExtended(s, q) - Math.abs(remainOnlyWords(s).length() - remainOnlyWords(q).length());
+    }
+    public static int lewenstainTitles(String s, String q){
+        return lewenstain(s, q) - Math.abs(s.length() - q.length());
     }
     public static String remainOnlyWords(String s){
         return s.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
@@ -128,5 +103,15 @@ public class Osnovnoe {
             return matcher.group();
         }
         return null;
+    }
+    public static boolean compareJsonAndReport(JsonReport jsonReport, FileReport fileReport){
+//        boolean date = isDateInTimeRange(jsonReport.getData_start());
+//        boolean title = lewenstainExtendedTitles(jsonReport.getTitle(), fileReport.getTitle()) <
+//                lewenshtainAllowableCountForTitles;
+//        boolean fio = SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio());
+//        return date && title && fio;
+        return isDateInTimeRange(jsonReport.getData_start())
+                && (lewenstainExtendedTitles(jsonReport.getTitle(), fileReport.getTitle()) < lewenshtainAllowableCountForTitles)
+                && SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio());
     }
 }

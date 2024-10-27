@@ -39,8 +39,8 @@ public class FolderScanner {
         ArrayList<FileReport> fileReports = new ArrayList<>();
 
         fileReports.addAll(getFileDocxReports());
-        fileReports.addAll(getFilePdfReports());
-        fileReports.addAll(getFileDocReports());
+//        fileReports.addAll(getFilePdfReports());
+//        fileReports.addAll(getFileDocReports());
         return fileReports;
     }
 

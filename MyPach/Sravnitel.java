@@ -8,6 +8,7 @@ import MyPach.FileWork.FileReport;
 import MyPach.FileWork.FolderScanner;
 import MyPach.JSON.JsonReport;
 import MyPach.JSON.ProjectFlow;
+import MyPach.JSON.SupervisorFio;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,47 +26,6 @@ public class Sravnitel {
     ArrayList<DBHonoric> dbHonorics;
     public Sravnitel(){
         Scanner in = new Scanner(System.in);
-
-
-        /*generalLogic();
-        System.out.println("endDataFall=" + endDataFall.size());
-        System.out.println("endDataSpring=" + endDataSpring.size());
-        System.out.println("honorics=" + honorics.size());
-
-//        cleanHonoric();
-        checkFallandSpring();*/
-    }
-    public static int getNumberOfUniqueOtchets(){
-        System.out.println("_________________________________________________________________________________________________");
-        System.out.println("-------------------------------------------------------------------------------------------------");
-        System.out.println("Дубли:\n");
-        ArrayList<FileReport> array = new FolderScanner().getFileReports();
-        int numberOfUniqueOtchets = 0;
-
-        ArrayList<FileReport> checkedOtchets = new ArrayList<>();
-
-        for (FileReport i : array){
-            for (FileReport j : array){
-                /*if (array.indexOf(i) > array.indexOf(j))
-                    continue;*/
-                if (checkedOtchets.contains(j))
-                    continue;
-                if (i == j)
-                    continue;
-
-                if (i.getTitle().equals(j.getTitle())){
-                    System.out.println(i.getTitle());
-                    System.out.println(i.getFileName());
-                    System.out.println(j.getFileName());
-                    System.out.println("---|---\n\n");
-                    /*numberOfUniqueOtchets--;*/
-                }
-            }
-            checkedOtchets.add(i);
-            numberOfUniqueOtchets++;
-        }
-//        return numberOfUniqueOtchets;
-        return -1;
     }
     public static ArrayList<String> getDublesOtchetFileNames(){
         ArrayList<FileReport> array = new FolderScanner().getFileReports();
@@ -75,8 +35,6 @@ public class Sravnitel {
 
         for (FileReport i : array){
             for (FileReport j : array){
-                /*if (array.indexOf(i) > array.indexOf(j))
-                    continue;*/
                 if (checkedOtchets.contains(j))
                     continue;
                 if (i == j)
@@ -446,32 +404,23 @@ public class Sravnitel {
 //        fileNamesWitoutPair.add("");
         return fileNamesWitoutPair;
     }
-    public static boolean compareFIO(String json, String otchet){
-        if (json.equals(otchet))
+    public static boolean compareFIO(String fio1, String fio2){
+        if (fio1.equals(fio2))
             return true;
-        String[] arr = json.split("( )|(\\.)");
-        String[] mas = otchet.split("( )|(\\.)");
-        if (arr.length == mas.length){
-            if (    (arr[0].equals(mas[0])) &&
-                    (arr[0].charAt(0) == mas[0].charAt(0)) &&
-                    (arr[1].charAt(0) == mas[1].charAt(0)))
+        String[] arr1 = fio1.split("( )|(\\.)");
+        String[] arr2 = fio2.split("( )|(\\.)");
+        if (arr1.length == arr2.length){
+            if (    (arr1[0].equals(arr2[0])) &&
+                    (arr1[0].charAt(0) == arr2[0].charAt(0)) &&
+                    (arr1[1].charAt(0) == arr2[1].charAt(0)))
                 return true;
         }
-
-        /*for (var lol : arr){
-            System.out.println(lol);
-        }
-        for (var lol : mas){
-            System.out.println(lol);
-        }*/
         return false;
     }
     public static boolean compareJsonAndFile(JsonReport json, FileReport fileReport){
         return
-                (json.getData_start().contains("2022-09") || (json.getData_start().contains("2023-02"))) &&
-                (json.getProject_supervisor_role_id() == 2) && // i have to check role id
+                (json.getData_start().contains(Osnovnoe.date_start) || (json.getData_start().contains(Osnovnoe.date_end))) &&
                 compareFIO(json.getFio(), fileReport.getFio()) &&
-                //((fileReport.getTitle().contains(jsonReport.getTitle())) || (jsonReport.getTitle().contains(fileReport.getTitle()))) // проерка на название
                 (
                         compareTwoTitles(json.getTitle(), fileReport.getTitle()) ||
                         ((lewenstain(json.getTitle(), fileReport.getTitle()) < 12) || (lewenstain(fileReport.getTitle(), json.getTitle()) < 12)) // помоему достаточно одного
@@ -513,12 +462,6 @@ public class Sravnitel {
     }
     public static String remainOnlyWords(String s){
         return s.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
-    }
-    public static boolean anotherCompareOfTitles(String json, String otchet){
-        // здесь превращение одних символов в другие и т.д.
-        // или переписать contains
-
-        return false;
     }
     public static boolean myContains(String s, String q){
         /////////////////////////////////////////////////////
@@ -577,11 +520,6 @@ public class Sravnitel {
         return false;
     }
     public static int lewenstain(String s, String q){
-        /*int up = 1; // prev j in column (i, j-1)
-        int left = 1; // prev i in row (i - 1, j)
-        int prev = 0; // just prev (i - 1, j - 1)
-        //int cur; // (i, j)*/
-
         int prev = 0;
         int[] up = new int[q.length()];
         int[] left = new int[s.length()];

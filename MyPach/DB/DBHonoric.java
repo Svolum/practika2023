@@ -10,6 +10,8 @@ public class DBHonoric {
     private String review;
     private EndData endDataFall;
     private EndData endDataSpring;
+    private JsonReport jsonReport;
+    private FileReport fileReport;
     public DBHonoric(int id, int prev_id, String review, EndData endDataFall, EndData endDataSpring) {
         this.id = id;
         this.prev_id = prev_id;
@@ -21,6 +23,15 @@ public class DBHonoric {
         - Кроме необходимых полей id и review имеет дополнительные поля, которые используются для отладки
          */
     }
+    public DBHonoric(int id, int prev_id, String review, JsonReport jsonReport, FileReport fileReport) {
+        this.id = id;
+        this.prev_id = prev_id;
+        this.review = review;
+        this.jsonReport = jsonReport;
+        this.fileReport = fileReport;
+    }
+
+    // Getters & Setters
     public int getId() {
         return id;
     }
@@ -50,5 +61,17 @@ public class DBHonoric {
     }
     public void setEndDataSpring(EndData endDataSpring) {
         this.endDataSpring = endDataSpring;
+    }
+    public JsonReport getJsonReport() {
+        return jsonReport;
+    }
+    public void setJsonReport(JsonReport jsonReport) {
+        this.jsonReport = jsonReport;
+    }
+    public FileReport getFileReport() {
+        return fileReport;
+    }
+    public void setFileReport(FileReport fileReport) {
+        this.fileReport = fileReport;
     }
 }
