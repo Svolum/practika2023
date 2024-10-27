@@ -1,6 +1,5 @@
 import MyPach.AdminClasses.DBAdmin;
 import MyPach.AdminClasses.FilesAdmin;
-import MyPach.MyDateWork;
 import MyPach.Osnovnoe;
 
 public class Main {
@@ -9,7 +8,6 @@ public class Main {
         а так же имя создаваемого .json файла надо прописать самостоятельно
          */
 //        mainWOrk();
-        dateWork();
 //        sideWork();
 //        certinFileWork();
     }
@@ -24,6 +22,7 @@ public class Main {
 //        Osnovnoe.workingPath = "\\отчетыМного\\отчеты 2022-2023\\отчеты\\обработано\\";
         Osnovnoe.date_start = "2022-09";
         Osnovnoe.date_end = "2023-02";
+        Osnovnoe.setYears();
 
         // уч год 23-24
         /*Osnovnoe.workingPath = "\\отчетыМного\\отчеты наставников 2023-2024\\отчеты наставников\\";
@@ -47,9 +46,6 @@ public class Main {
         ///////////////////////////////////////////////////////////////////////////////////////////
         /*ArrayList<DBHonoric> dbHonorics = new Sravnitel().getDbHonoricsThroughMyNode();
         new DBFileCreator(dbHonorics);*/
-    }
-    public static void dateWork(){
-        new MyDateWork();
     }
     public static void certinFileWork(){
         Osnovnoe.workingPath = "\\отчетыМного\\отчеты 2022-2023\\отчеты\\без экспертов\\";

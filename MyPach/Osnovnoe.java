@@ -5,6 +5,7 @@ import MyPach.JSON.JsonReport;
 import MyPach.JSON.SupervisorFio;
 import org.apache.poi.util.StringUtil;
 
+import java.time.LocalDate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -14,6 +15,12 @@ public class Osnovnoe {
     public static String date_start;
     // Типо это начала весеннего
     public static String date_end;
+    public static int year_start;
+    public static int year_end;
+    public static void setYears(){
+        year_start = LocalDate.parse(date_start).getYear();
+        year_end = LocalDate.parse(date_end).getYear();
+    }
     public static String jsonCreatingFileName;
     public static int lewenshtainAllowableCountForTitles;
     public static int lewenshtainAllowableCountForFio;
@@ -23,14 +30,29 @@ public class Osnovnoe {
         lewenshtainAllowableCountForFio = 5;
     }
 
-    public static boolean compareDates(String data1, String data2){
-        if (data1.contains(data2) || data2.contains(data1))
-            return true;
-        return false;
-    }
     // Находится ли дата в том уч году, который нужен
     public static boolean isDateInTimeRange(String date){
-        return compareDates(date_start, date) || compareDates(date_end, date);
+        LocalDate localDate = LocalDate.parse(date);
+        if (localDate.getYear() == year_start){
+            return localDate.getMonthValue() >= 9;
+        }else if (localDate.getYear() == year_end){
+            return localDate.getMonthValue() <= 6;
+        }
+        return false;
+    }
+    public static boolean isDateInTimeRangeFall(String date){
+        LocalDate localDate = LocalDate.parse(date);
+        if (localDate.getYear() == year_start){
+            return localDate.getMonthValue() >= 9;
+        }
+        return false;
+    }
+    public static boolean isDateInTimeRangeSpring(String date){
+        LocalDate localDate = LocalDate.parse(date);
+        if (localDate.getYear() == year_end){
+            return localDate.getMonthValue() <= 6;
+        }
+        return false;
     }
     public static String getCurrentDirrectory(){
         return System.getProperty("user.dir");
@@ -70,6 +92,8 @@ public class Osnovnoe {
     }
     // регистро не зависимо(toLowerCase) и такие буквы как е и ё или и и й считаются одной и тоже буквой
     public static int lewenstainExtended(String s, String q){
+        /* Эта щтука удаляет всякие спец символы, которые могу просто взять и появить в word файле и ничего не делать,
+        но быть!!! */
         s = Osnovnoe.remainOnlyWords(s);
         q = Osnovnoe.remainOnlyWords(q);
 
@@ -80,7 +104,10 @@ public class Osnovnoe {
 
         return lewenstain(s, q);
     }
+    // по сути это можно назвать contains по левенштейну
     public static int lewenstainExtendedTitles(String s, String q){
+        // по сути это можно назвать contains по левенштейну
+        // и можно вызывать обычный левенштейн а не расщиренный
         /*return (s.length() > q.length()) ?
                 lewenstainExtended(s, q) - Math.abs(s.length() - q.length()) :
                 lewenstainExtended(q, s) - Math.abs(s.length() - q.length());*/

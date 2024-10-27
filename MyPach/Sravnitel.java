@@ -166,12 +166,9 @@ public class Sravnitel {
 
 
         int a = 0;
-        ArrayList<String> fileNamesWitoutPair = getFileNamesWithoutPair();
         for (FileReport fileReport : fileReports){
             if (fileReport.getProject_id() == 0){
                 if (dublesOtchetFileNames.contains(fileReport.getFileName()))
-                    continue;
-                if (fileNamesWitoutPair.contains(fileReport.getFileName()))
                     continue;
 
                 /*System.out.println(fileReport.toString(0));
@@ -214,9 +211,9 @@ public class Sravnitel {
                 JsonReport jsonFallReport = null;
                 JsonReport jsonSpringReport = null;
                 for (JsonReport jsonReport : projectFlow.getJsonReports()){
-                    if (Osnovnoe.compareDates(jsonReport.getData_start(), Osnovnoe.date_start)) // Осень
+                    if (Osnovnoe.isDateInTimeRangeFall(jsonReport.getData_start())) // Осень
                         jsonFallReport = jsonReport;
-                    else if (Osnovnoe.compareDates(jsonReport.getData_start(), Osnovnoe.date_end)) // Весна
+                    else if (Osnovnoe.isDateInTimeRangeSpring(jsonReport.getData_start())) // Весна
                         jsonSpringReport = jsonReport;
                 }
 
@@ -276,58 +273,14 @@ public class Sravnitel {
         }
 
         int a = 0; // кол-во файлов, которым прога не нашла пары, и которые я пока считаю не дефектными
-        ArrayList<String> fileNamesWitoutPair = getFileNamesWithoutPair();
         for (FileReport fileReport : fileReports){
             if (fileReport.getProject_id() == 0){
                 if (dublesOtchetFileNames.contains(fileReport.getFileName()))
                     continue;
-                if (fileNamesWitoutPair.contains(fileReport.getFileName()))
-                    continue;
-
                 a++;
             }
         }
     }
-    public void cleanHonoric(){
-        // key-id & value-prev_id
-        HashMap<Integer, Integer> couples = new HashMap();
-
-        /*
-        Сейчас я не могу точно понять сколько у меня дублей или чего-то похожего
-        - Сначала собираю те пары, что имеют prev_id
-
-         */
-
-        int onlyId = 0;
-        int withPrev_id = 0;
-        for (int i = 0; i < honorics.size(); i++){
-            int id = honorics.get(i).getId();
-            int prev_id = honorics.get(i).getPrev_id();
-//            System.out.println(id + " | " + prev_id);
-            if ((id != 0) && (prev_id == 0))
-                onlyId++;
-            if ((id != 0) && (prev_id != 0))
-                withPrev_id++;
-
-            couples.put(id, prev_id);
-        }
-        System.out.println("onlyId=" + onlyId);
-        System.out.println("withPrev_id=" + withPrev_id);
-        System.out.println("couples=" + couples.size());
-    }
-    public void checkFallandSpring(){
-        dbHonorics = new ArrayList<>();
-        for (EndData spring : endDataSpring){
-            for (EndData fall : endDataFall){
-                if (spring.getPrevProjectId() == fall.getProjectId()) {
-                    dbHonorics.add(new DBHonoric(fall.getProjectId(), spring.getProjectId(), fall.getReview(), fall, spring));
-                    break;
-                }
-            }
-        }
-        System.out.println("dbHonorics=" + dbHonorics.size());
-    }
-    
     public ArrayList<DBHonoric> getDbHonorics() {
         dbHonorics = new ArrayList<>();
 
@@ -391,46 +344,17 @@ public class Sravnitel {
         return dbHonorics;
     }
 
-    public static ArrayList<String> getFileNamesWithoutPair(){
-        ArrayList<String > fileNamesWitoutPair = new ArrayList<>();
-        fileNamesWitoutPair.add("Архитектурно-планировочная концепция развития территории «ЭКОПАРК ТАНХОЙ».docx");
-        fileNamesWitoutPair.add("Отчет наставника (v2023) Арсентьев ОВ.docx");
-        fileNamesWitoutPair.add("Причины отрицательной миграции населения в Иркутской области и меры по ее преодолению..docx");
-        fileNamesWitoutPair.add("Проведение оценки профессиональных рисков в структурных подразделениях ИРНИТУ Издательство «УЛиУМП».docx");
-        fileNamesWitoutPair.add("Проектные работы на строительство группы жилых домов в г. Тайшете.docx");
-        fileNamesWitoutPair.add("Работы по сохранению объекта культурного наследия «Особняка Бутиных», 1886г., г. Иркутск, Хасановский пер.,1 лит. А.docx");
-        fileNamesWitoutPair.add("Ярмарка выходного дня «Клубничная феерия».docx");
-        fileNamesWitoutPair.add("Отчет наставника каф.РМПИ Иванов.docx");
-//        fileNamesWitoutPair.add("");
-        return fileNamesWitoutPair;
-    }
-    public static boolean compareFIO(String fio1, String fio2){
-        if (fio1.equals(fio2))
-            return true;
-        String[] arr1 = fio1.split("( )|(\\.)");
-        String[] arr2 = fio2.split("( )|(\\.)");
-        if (arr1.length == arr2.length){
-            if (    (arr1[0].equals(arr2[0])) &&
-                    (arr1[0].charAt(0) == arr2[0].charAt(0)) &&
-                    (arr1[1].charAt(0) == arr2[1].charAt(0)))
-                return true;
-        }
-        return false;
-    }
     public static boolean compareJsonAndFile(JsonReport json, FileReport fileReport){
         return
                 (json.getData_start().contains(Osnovnoe.date_start) || (json.getData_start().contains(Osnovnoe.date_end))) &&
-                compareFIO(json.getFio(), fileReport.getFio()) &&
-                (
-                        compareTwoTitles(json.getTitle(), fileReport.getTitle()) ||
-                        ((lewenstain(json.getTitle(), fileReport.getTitle()) < 12) || (lewenstain(fileReport.getTitle(), json.getTitle()) < 12)) // помоему достаточно одного
-                )
+                SupervisorFio.areEqual(json.getFio(), fileReport.getFio()) &&
+                ((Osnovnoe.lewenstain(json.getTitle(), fileReport.getTitle()) < 12) || (Osnovnoe.lewenstain(fileReport.getTitle(), json.getTitle()) < 12))
         ;
     }
     public static boolean compareMyNodeAndFile(ProjectFlow projectFlow, FileReport fileReport){
         boolean titleFitting = false;
         for (String title : projectFlow.getTitles()){
-            if (compareTwoTitles(title, fileReport.getTitle())){
+            if (Osnovnoe.lewenstainExtendedTitles(title, fileReport.getTitle()) < Osnovnoe.lewenshtainAllowableCountForTitles){
                 titleFitting = true;
                 break;
             }
@@ -443,105 +367,13 @@ public class Sravnitel {
             if (Osnovnoe.isDateInTimeRange(jsonReport.getData_start()) || Osnovnoe.isDateInTimeRange(jsonReport.getData_end())){
 //                (json.getProject_supervisor_role_id() == 2) && // поля где (supervisor_role != 2) отсеяны на этапе чтения
                 if (
-                        (compareFIO(jsonReport.getFio(), fileReport.getFio())) &&
-                        (compareTitlesLewenshtain(jsonReport.getTitle(), fileReport.getTitle()))
+                        (SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio())) &&
+                        (Osnovnoe.lewenstainExtendedTitles(jsonReport.getTitle(), fileReport.getTitle()) < Osnovnoe.lewenshtainAllowableCountForTitles)
                 )
                     return true;
             }
         }
 
         return false;
-    }
-    public static boolean compareTwoTitles(String json, String otchet){
-        json = remainOnlyWords(json);
-        otchet = remainOnlyWords(otchet);
-        return json.contains(otchet) || otchet.contains(json);
-    }
-    public static boolean compareTitlesLewenshtain(String title1, String title2){
-        return Osnovnoe.lewenstainExtended(title1, title2) < Osnovnoe.lewenshtainAllowableCountForTitles;
-    }
-    public static String remainOnlyWords(String s){
-        return s.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
-    }
-    public static boolean myContains(String s, String q){
-        /////////////////////////////////////////////////////
-        //s = remainOnlyWords(s);
-        //q = remainOnlyWords(q);
-        //System.out.println(s);
-        //System.out.println(q);
-        /////////////////////////////////////////////////////
-        if (s.length() < q.length())
-            return false;
-        // max 6
-        // Так же, когда катушка будет встречать несовпадение, она должна попробовать следующий символ из s, и из q //типо подстановка, хотя если писать MyContains под каждую строку, то подстановку, наверное моэно запилить только из одного массива символов
-        // как получиться, короче
-        int step = 0;
-        // Для начала, надо написать простой contains, а потом уже с возможностью допустить ошибку
-        //System.out.println(s + " | " + q);
-
-        char[] smas = s.toCharArray();
-        char[] qmas = q.toCharArray();
-        for (int si = 0; si < smas.length - qmas.length + 1; si++){ // если s становится короче чем q, то продолжать нет смысла
-            int ind = si;
-            int qe = 0;
-            int se = 0;
-            step = 0;
-            for (int qi = 0; qi < qmas.length; qi++){
-                ind = si + qi - qe + se;  // сюда та самая формула, до этого я менял si, но потом возникали заморочки с установкой того значения, которое должно быть по факту(циклу фору --for)
-                if (smas[ind] == qmas[qi]){
-                    if (qi == qmas.length - 1) // если добрался до конца, значит q является подстрокой s
-                        return true;
-                    continue;
-                }
-                else {
-                    if ((se != 2) && (step == 0)){ // т.е допускаемое кол-во ошибок = 2
-                        se++;
-                        continue;
-                    }else {
-                        step = 1;
-                        se = 0;
-                    }
-                    qe++; // подготовка qe к следующему шагу в q
-                    //System.out.println("qe = " + qe);
-                    // код ниже - ликвидный код
-                    if (qe != 3) // максимальное допустимое количество ошибок == 2
-                    {
-                        if (qi == qmas.length - 1) // пусть и с ошибками, но q является подстрокой s
-                            return true;
-                        continue;
-                    }
-                    qe--; // так как следующий шаг, будет уже в s, а не в q. И мне надо чтобы прога норм возвращала si в свое нормальное значение
-                    //System.out.println(si + " | " + (ind - qi + qe - se)); // это так, если в самом конце они будут сходится, то удалю ind
-                    break;
-                }
-            }
-        }
-        //System.out.println("end false");
-        return false;
-    }
-    public static int lewenstain(String s, String q){
-        int prev = 0;
-        int[] up = new int[q.length()];
-        int[] left = new int[s.length()];
-        int cur = 0;
-        for (int i = 0; i < s.length(); i++){
-            left[i] = i + 1;
-            for (int j = 0; j < q.length(); j++){
-                if (i == 0)
-                    up[j] = j + 1;
-
-                int a = up[j] + 1;
-                int b = left[i] + 1;
-                int c = prev;
-                if (s.charAt(i) != q.charAt(j))
-                    c++;
-                cur = Math.min(Math.min(a, b), c);
-
-                prev = up[j];
-                left[i] = cur;
-                up[j] = cur;
-            }
-        }
-        return cur;
     }
 }
