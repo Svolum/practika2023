@@ -52,7 +52,7 @@ public class DBAdmin {
             isSpring = false;
 
             for (JsonReport jsonReport : jsonReports){
-                if (Sravnitel.compareJsonAndFile(jsonReport, fileReport)){
+                if (Osnovnoe.compareJsonAndReport(jsonReport, fileReport)){
 
                     int projectId = jsonReport.getProject_id();
 

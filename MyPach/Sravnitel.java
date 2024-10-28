@@ -80,7 +80,7 @@ public class Sravnitel {
             boolean isSpring = false;
 
             for (JsonReport jsonReport : jsonReports){
-                if (compareJsonAndFile(jsonReport, fileReport)){
+                if (Osnovnoe.compareJsonAndReport(jsonReport, fileReport)){
 //                    String searchingTitle = "Культура безопасности как элемент снижения уровня профессиональных рисков";
 //                    if (jsonReport.getTitle().equals(searchingTitle)) {
 //                        System.out.println("X#");
@@ -354,7 +354,7 @@ public class Sravnitel {
     public static boolean compareMyNodeAndFile(ProjectFlow projectFlow, FileReport fileReport){
         boolean titleFitting = false;
         for (String title : projectFlow.getTitles()){
-            if (Osnovnoe.lewenstainExtendedTitles(title, fileReport.getTitle()) < Osnovnoe.lewenshtainAllowableCountForTitles){
+            if (Osnovnoe.myContainsRelative(title, fileReport.getTitle())){
                 titleFitting = true;
                 break;
             }
@@ -368,7 +368,7 @@ public class Sravnitel {
 //                (json.getProject_supervisor_role_id() == 2) && // поля где (supervisor_role != 2) отсеяны на этапе чтения
                 if (
                         (SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio())) &&
-                        (Osnovnoe.lewenstainExtendedTitles(jsonReport.getTitle(), fileReport.getTitle()) < Osnovnoe.lewenshtainAllowableCountForTitles)
+                        Osnovnoe.myContainsRelative(jsonReport.getTitle(), fileReport.getTitle())
                 )
                     return true;
             }

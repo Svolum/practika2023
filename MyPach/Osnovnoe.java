@@ -104,17 +104,17 @@ public class Osnovnoe {
 
         return lewenstain(s, q);
     }
-    // по сути это можно назвать contains по левенштейну
-    public static int lewenstainExtendedTitles(String s, String q){
-        // по сути это можно назвать contains по левенштейну
-        // и можно вызывать обычный левенштейн а не расщиренный
+    public static int lewenshtainContainsExtended(String s, String q){
         /*return (s.length() > q.length()) ?
                 lewenstainExtended(s, q) - Math.abs(s.length() - q.length()) :
                 lewenstainExtended(q, s) - Math.abs(s.length() - q.length());*/
         return lewenstainExtended(s, q) - Math.abs(remainOnlyWords(s).length() - remainOnlyWords(q).length());
     }
-    public static int lewenstainTitles(String s, String q){
+    public static int lewenshtainContains(String s, String q){
         return lewenstain(s, q) - Math.abs(s.length() - q.length());
+    }
+    public static boolean myContainsRelative(String s, String q){
+        return lewenshtainContainsExtended(s, q) < Osnovnoe.lewenshtainAllowableCountForTitles;
     }
     public static String remainOnlyWords(String s){
         return s.replaceAll("[^A-Za-zА-Яа-я0-9]", "").toLowerCase();
@@ -138,7 +138,7 @@ public class Osnovnoe {
 //        boolean fio = SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio());
 //        return date && title && fio;
         return isDateInTimeRange(jsonReport.getData_start())
-                && (lewenstainExtendedTitles(jsonReport.getTitle(), fileReport.getTitle()) < lewenshtainAllowableCountForTitles)
+                && myContainsRelative(jsonReport.getTitle(), fileReport.getTitle())
                 && SupervisorFio.areEqual(jsonReport.getFio(), fileReport.getFio());
     }
 }

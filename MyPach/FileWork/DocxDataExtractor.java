@@ -160,7 +160,7 @@ public class DocxDataExtractor {
             // if Find desired "Название проекта"
             String desiredStr = "Фактически полученный продуктовый результат";
             if ((Osnovnoe.remainOnlyWords(text).length() != 0) &&
-                    (text.trim().contains(desiredStr) || (Osnovnoe.lewenstainExtendedTitles(desiredStr, text) <= 1))) {
+                    (text.trim().contains(desiredStr) || Osnovnoe.myContainsRelative(desiredStr, text) )) {
                 isTitleReviewFinded = true;
 //                System.out.println(Osnovnoe.lewenstainExtendedTitles(desiredStr, text) + " | " + fileName);
 //                System.out.println(Osnovnoe.lewenstainExtendedTitles(desiredStr, text));

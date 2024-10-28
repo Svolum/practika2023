@@ -33,7 +33,7 @@ public class ProjectFlow {
     }
     public boolean contains(String reportTitle){
         for (String title : titles){
-            if (Osnovnoe.lewenstainExtendedTitles(reportTitle, title) < Osnovnoe.lewenshtainAllowableCountForTitles){
+            if (Osnovnoe.myContainsRelative(reportTitle, title)){
                 return true;
             }
         }

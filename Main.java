@@ -1,6 +1,11 @@
 import MyPach.AdminClasses.DBAdmin;
 import MyPach.AdminClasses.FilesAdmin;
+import MyPach.AdminClasses.JsonAdmin;
+import MyPach.JSON.JsonReport;
 import MyPach.Osnovnoe;
+
+import java.util.ArrayList;
+import java.util.HashSet;
 
 public class Main {
     public static void main(String[] args) {
@@ -10,6 +15,7 @@ public class Main {
 //        mainWOrk();
 //        sideWork();
 //        certinFileWork();
+//        [2022-01-09, 2023-12-30, 2024-02-05, 2023-02-01, 2022-12-30, 2023-09-01, 2024-05-30, 2023-05-30, 2022-09-01, 2024-02-01]
     }
     public static void mainWOrk(){
         // уч год 21-22
@@ -22,7 +28,8 @@ public class Main {
 //        Osnovnoe.workingPath = "\\отчетыМного\\отчеты 2022-2023\\отчеты\\обработано\\";
         Osnovnoe.date_start = "2022-09";
         Osnovnoe.date_end = "2023-02";
-        Osnovnoe.setYears();
+        Osnovnoe.year_start = 2022;
+        Osnovnoe.year_end = 2023;
 
         // уч год 23-24
         /*Osnovnoe.workingPath = "\\отчетыМного\\отчеты наставников 2023-2024\\отчеты наставников\\";
